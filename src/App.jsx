@@ -20,6 +20,8 @@ function App() {
       zoom: 10,
     });
 
+    window.map = mapRef.current;
+
     return () => mapRef.current?.remove();
   }, []);
 
