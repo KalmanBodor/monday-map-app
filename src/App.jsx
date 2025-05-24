@@ -34,14 +34,18 @@ function App() {
         const query = `
           query {
             boards(ids: ${boardId}) {
-              id
-              name
-              items {
-                id
-                name
-                column_values {
+              items_page {  
+                items {
                   id
-                  text
+                  name
+                  column_values {
+                    id
+                    value
+                    text
+                    column {
+                      title
+                    }
+                  }
                 }
               }
             }
@@ -56,7 +60,7 @@ function App() {
         const map = mapRef.current;
 
         for (const item of items) {
-          const address = item.column_values.find(col => col.id === "address")?.text;
+          const address = item.column_values.find(col => col.column.title.match(/address/i))?.text;
           const status = item.column_values.find(col => col.id === "status")?.text;
 
           if (!address) continue;
