@@ -83,6 +83,7 @@ function App() {
           for (const item of items) {
             const address = item.column_values.find(col => col.column.title.match(/address/i))?.text;
             const status = item.column_values.find(col => col.id === "status")?.text;
+            status ||= 'Prospective';
 
             console.log("ADDR: " + address);
 
@@ -94,7 +95,13 @@ function App() {
 
             new mapboxgl.Marker({ color: status === "Sold" ? "red" : "green" })
               .setLngLat(coords)
-              .setPopup(new mapboxgl.Popup().setText(`${item.name} — ${status}`))
+              .setPopup(
+                new mapboxgl.Popup()
+                  .setHTML(
+                    `<div class="popup-${status?.toLowerCase()}">
+                      ${item.name} — ${status}
+                    </div>`)
+              )
               .addTo(map);
           }
         });

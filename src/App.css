@@ -40,3 +40,21 @@
 .read-the-docs {
   color: #888;
 }
+
+.popup-sold {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 6px;
+}
+
+.popup-available {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 6px;
+}
+
+.popup-prospective {
+  background-color: #d4edda;
+  color: lightseagreen;
+  padding: 6px;
+}
