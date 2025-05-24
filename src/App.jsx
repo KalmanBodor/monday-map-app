@@ -79,32 +79,35 @@ function App() {
 
         const map = mapRef.current;
 
-        mapRef.current.on('load', async () => {
+        async function plotPins() {
           for (const item of items) {
             const address = item.column_values.find(col => col.column.title.match(/address/i))?.text;
             let status = item.column_values.find(col => col.id === "status")?.text;
             status ||= 'Prospective';
 
-            console.log("ADDR: " + address);
-
+            console.log("ADDR:", address);
             if (!address) continue;
 
             const coords = await geocode(address);
-            console.log("COORD: " + coords);
+            console.log("COORD:", coords);
             if (!coords) continue;
 
             new mapboxgl.Marker({ color: status === "Sold" ? "red" : "green" })
               .setLngLat(coords)
               .setPopup(
-                new mapboxgl.Popup()
-                  .setHTML(
-                    `<div class="popup-${status?.toLowerCase()}">
-                      ${item.name} — ${status}
-                    </div>`)
+                new mapboxgl.Popup().setHTML(
+                  `<div class="popup-${status?.toLowerCase()}">${item.name} — ${status}</div>`
+                )
               )
               .addTo(map);
           }
-        });
+        }
+
+        if (map.loaded()) {
+          plotPins(); // ✅ already loaded, run now
+        } else {
+          map.on('load', plotPins); // ✅ wait until load
+        }
 
         setLoading(false);
       } catch (err) {
