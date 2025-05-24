@@ -62,9 +62,9 @@ function App() {
           return;
         }
 
-        const items = boards[0]?.items;
+        const items = response?.data?.boards?.[0]?.items_page?.items;
         if (!Array.isArray(items)) {
-          console.error("No items in board:", boards[0]);
+          console.error("No items received");
           return;
         }
 
