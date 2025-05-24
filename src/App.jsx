@@ -21,6 +21,7 @@ function App() {
     });
 
     window.map = mapRef.current;
+    window.mapboxgl = mapboxgl;
 
     return () => mapRef.current?.remove();
   }, []);
