@@ -76,9 +76,12 @@ function App() {
           const address = item.column_values.find(col => col.column.title.match(/address/i))?.text;
           const status = item.column_values.find(col => col.id === "status")?.text;
 
+          console.log("ADDR: " + address);
+
           if (!address) continue;
 
           const coords = await geocode(address);
+          console.log("COORD: " + coords);
           if (!coords) continue;
 
           new mapboxgl.Marker({ color: status === "Sold" ? "red" : "green" })
