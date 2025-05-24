@@ -82,7 +82,7 @@ function App() {
         mapRef.current.on('load', async () => {
           for (const item of items) {
             const address = item.column_values.find(col => col.column.title.match(/address/i))?.text;
-            const status = item.column_values.find(col => col.id === "status")?.text;
+            let status = item.column_values.find(col => col.id === "status")?.text;
             status ||= 'Prospective';
 
             console.log("ADDR: " + address);
