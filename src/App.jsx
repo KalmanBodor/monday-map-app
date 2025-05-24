@@ -53,7 +53,20 @@ function App() {
         `;
 
         const response = await monday.api(query);
-        const items = response.data.boards[0].items;
+
+        console.log("Full GraphQL response:", response);
+
+        const boards = response?.data?.boards;
+        if (!boards || boards.length === 0) {
+          console.error("No boards returned.");
+          return;
+        }
+
+        const items = boards[0]?.items;
+        if (!Array.isArray(items)) {
+          console.error("No items in board:", boards[0]);
+          return;
+        }
 
         console.log("Fetched items:", items);
 
