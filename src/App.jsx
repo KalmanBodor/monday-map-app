@@ -34,6 +34,8 @@ function App() {
         const query = `
           query {
             boards(ids: ${boardId}) {
+              id
+              name
               items {
                 id
                 name
