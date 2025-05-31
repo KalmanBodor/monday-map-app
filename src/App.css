@@ -5,6 +5,7 @@
   padding: 0;
   overflow: hidden;
   position: relative;
+  font-family: Figtree, Roboto, Noto Sans Hebrew, Noto Kufi Arabic, Noto Sans JP, sans-serif;
 }
 
 .map-container {
@@ -26,7 +27,7 @@
   box-shadow: 8px 0px 7px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   padding: 10px;
-  transform: translateX(0); /* visible */
+  transform: translateX(0);
   transition: transform 0.2s ease-in-out;
   z-index: 10;
 }
@@ -40,18 +41,26 @@
   margin-bottom: 5px;
 }
 
+.sbr-toggle-btn {
+	height: 32px;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 24px;
+	width: 200px;
+}
+
 .sidebar-toggle {
   position: absolute;
   top: 10px;
   left: 10px;
   z-index: 20;
-  background-color: #00854d;
+  background-color: #0073ea;
   border-radius: 4px;
 }
 
 .list-toggle {
-  width: 100%;
-  background-color: #00854d;
+  background-color: #0073ea;
   border-radius: 4px;
 }
 
@@ -63,7 +72,7 @@
 }
 
 .card:hover {
-	background-color: #f9f9f9;
+	background-color: #fff;
 	box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
 }
 
@@ -77,13 +86,13 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  font-size: smaller;
+  font-size: 12px;
 }
 
 .item-cols li {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .col-label {

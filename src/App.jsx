@@ -113,7 +113,7 @@ function App() {
   return (
 	<div id="root">
 	 	<div className={`sidebar ${!sidebarOpen ? 'closed' : ''}`}>
-			<button className="list-toggle" onClick={() => setSidebarOpen(false)}>
+			<button className="sbr-toggle-btn list-toggle" onClick={() => setSidebarOpen(false)}>
 				Hide Properties
 			</button>
 			<div className="cards-container">
@@ -138,9 +138,9 @@ function App() {
 		</div>
 
 		{!sidebarOpen && (
-		<button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
-			Show Properties
-		</button>
+			<button className="sbr-toggle-btn sidebar-toggle" onClick={() => setSidebarOpen(true)}>
+				Show Properties
+			</button>
 		)}
 	  	<div ref={mapContainer} className="map-container" />
 	  		{loading && <div style={{ position: 'absolute', zIndex: 1, padding: 10 }}>Loading map data...</div>}
