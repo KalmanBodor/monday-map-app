@@ -134,7 +134,7 @@ function App() {
 								{item.column_values.map(col => {
 									return (
 										<li>
-											<div className='col-label'>{col.colum.title}</div>
+											<div className='col-label'>{col.column.title}</div>
 											<div className='col-val'>{col.text}</div>
 										</li>
 									);
