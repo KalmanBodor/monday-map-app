@@ -114,30 +114,39 @@ function App() {
 	<div id="root">
 	  {sidebarOpen ? (
 		<div className="sidebar">
-		  <button onClick={() => setSidebarOpen(false)}>Hide List</button>
-		  {items.map(item => {
-			const address = item.column_values.find(col => col.column.title.match(/address/i))?.text || '(No address)';
-			return (
-			  <div
-				key={item.id}
-				onClick={() => flyToItem(item.id)}
-				style={{
-				  marginBottom: '10px',
-				  padding: '10px',
-				  border: '1px solid #ddd',
-				  borderRadius: '4px',
-				  cursor: 'pointer',
-				}}
-			  >
-				<div style={{ fontWeight: 'bold' }}>{address}</div>
-				<div>{item.name}</div>
-			  </div>
-			);
-		  })}
+			<button className="list-toggle"
+		  		onClick={() => setSidebarOpen(false)}>
+				Hide Properties
+			</button>
+		  	
+			<div className="cards-container">
+				{items.map(item => {
+					const address = item.column_values.find(col => col.column.title.match(/address/i))?.text || '(No address)';
+					return (
+						<div
+							key={item.id}
+							onClick={() => flyToItem(item.id)}
+							className='card'>
+							<div className="card-addr">{address}</div>
+							<div>{item.name}</div>
+							<ul className='item-cols'>
+								{item.column_values.map(col => {
+									return (
+										<li>
+											<div className='col-label'>{col.colum.title}</div>
+											<div className='col-val'>{col.text}</div>
+										</li>
+									);
+								})}
+							</ul>
+						</div>
+					);
+				})}
+		  	</div>
 		</div>
 	  ) : (
 		<button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
-		  Show List
+		  Show Properties
 		</button>
 	  )}
 	  <div ref={mapContainer} className="map-container" />
