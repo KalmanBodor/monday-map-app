@@ -121,6 +121,7 @@ function App() {
 		  	
 			<div className="cards-container">
 				{items.map(item => {
+					console.log(item);
 					const address = item.column_values.find(col => col.column.title.match(/address/i))?.text || '(No address)';
 					return (
 						<div
