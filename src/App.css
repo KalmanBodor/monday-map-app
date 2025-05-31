@@ -19,14 +19,20 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 300px;
   height: 100%;
-  overflow-y: auto;
+  width: 320px;
   color: dimgray;
   background: #f9f9f9;
-  border-right: 1px solid #ccc;
+  box-shadow: 8px 0px 7px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
   padding: 10px;
+  transform: translateX(0); /* visible */
+  transition: transform 0.2s ease-in-out;
   z-index: 10;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
 }
 
 .cards-container {
@@ -49,6 +55,18 @@
   border-radius: 4px;
 }
 
+.card {
+  padding: 8px;
+  border-bottom: 1px solid lightgray;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.card:hover {
+	background-color: #f9f9f9;
+	box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
 .card-addr {
   font-weight: bold;
   font-size: 1rem;
@@ -59,6 +77,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  font-size: smaller;
 }
 
 .item-cols li {
@@ -94,21 +113,17 @@
 
 @keyframes logo-spin {
   from {
-    transform: rotate(0deg);
+	transform: rotate(0deg);
   }
   to {
-    transform: rotate(360deg);
+	transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+	animation: logo-spin infinite 20s linear;
   }
-}
-
-.card {
-  padding: 2em;
 }
 
 .read-the-docs {

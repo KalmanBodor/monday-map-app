@@ -112,47 +112,39 @@ function App() {
 
   return (
 	<div id="root">
-	  {sidebarOpen ? (
-		<div className="sidebar">
-			<button className="list-toggle"
-		  		onClick={() => setSidebarOpen(false)}>
+	 	<div className={`sidebar ${!sidebarOpen ? 'closed' : ''}`}>
+			<button className="list-toggle" onClick={() => setSidebarOpen(false)}>
 				Hide Properties
 			</button>
-		  	
 			<div className="cards-container">
 				{items.map(item => {
-					console.log(item);
-					const address = item.column_values.find(col => col.column.title.match(/address/i))?.text || '(No address)';
-					return (
-						<div
-							key={item.id}
-							onClick={() => flyToItem(item.id)}
-							className='card'>
-							<div className="card-addr">{address}</div>
-							<div>{item.name}</div>
-							<ul className='item-cols'>
-								{item.column_values.map(col => {
-									return (
-										<li>
-											<div className='col-label'>{col.column.title}</div>
-											<div className='col-val'>{col.text}</div>
-										</li>
-									);
-								})}
-							</ul>
-						</div>
-					);
+				const address = item.column_values.find(col => col.column.title.match(/address/i))?.text || '(No address)';
+				return (
+					<div key={item.id} onClick={() => flyToItem(item.id)} className="card">
+					<div className="card-addr">{address}</div>
+					<div>{item.name}</div>
+					<ul className="item-cols">
+						{item.column_values.map((col, idx) => (
+						<li key={idx}>
+							<div className="col-label">{col.column.title}</div>
+							<div className="col-val">{col.text}</div>
+						</li>
+						))}
+					</ul>
+					</div>
+				);
 				})}
-		  	</div>
+			</div>
 		</div>
-	  ) : (
+
+		{!sidebarOpen && (
 		<button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
-		  Show Properties
+			Show Properties
 		</button>
-	  )}
-	  <div ref={mapContainer} className="map-container" />
-	  {loading && <div style={{ position: 'absolute', zIndex: 1, padding: 10 }}>Loading map data...</div>}
-	</div>
+		)}
+	  	<div ref={mapContainer} className="map-container" />
+	  		{loading && <div style={{ position: 'absolute', zIndex: 1, padding: 10 }}>Loading map data...</div>}
+		</div>
   );
 }
 
