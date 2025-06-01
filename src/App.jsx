@@ -158,7 +158,7 @@ function App() {
 								{item.column_values.map((col, idx) => (
 									<li key={idx}>
 										<div className="col-label">{col.column.title}</div>
-										<div className="col-val" style="{col.statusStyle}">{col.text}</div>
+										<div className="col-val" style={{ ...(col.statusColor && { color: col.statusColor }) }}>{col.text}</div>
 									</li>
 								))}
 							</ul>
