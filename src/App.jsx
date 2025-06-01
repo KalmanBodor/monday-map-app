@@ -88,7 +88,7 @@ function App() {
 
 					if ( statusMeta && Object.keys(statusMeta) && statusParsed && Object.keys(statusParsed) ) {
 						status['statusColor'] = statusMeta.labels_colors[ statusParsed.index ];
-						status['statusStyle'] = `color: ${status.statusColor};`;
+						status['statusStyle'] = { color: col.statusColor };
 					}
 				}
 			}
@@ -150,20 +150,20 @@ function App() {
 			</button>
 			<div className="cards-container">
 				{items.map(item => {
-				return (
-					<div key={item.id} onClick={() => flyToItem(item.id)} className="card">
-					<div className="card-addr">{item.address}</div>
-					<div>{item.name}</div>
-					<ul className="item-cols">
-						{item.column_values.map((col, idx) => (
-							<li key={idx}>
-								<div className="col-label">{col.column.title}</div>
-								<div className="col-val" style="{col.statusStyle}">{col.text}</div>
-							</li>
-						))}
-					</ul>
-					</div>
-				);
+					return (
+						<div key={item.id} onClick={() => flyToItem(item.id)} className="card">
+							<div className="card-addr">{item.address}</div>
+							<div>{item.name}</div>
+							<ul className="item-cols">
+								{item.column_values.map((col, idx) => (
+									<li key={idx}>
+										<div className="col-label">{col.column.title}</div>
+										<div className="col-val" style="{col.statusStyle}">{col.text}</div>
+									</li>
+								))}
+							</ul>
+						</div>
+					);
 				})}
 			</div>
 		</div>
