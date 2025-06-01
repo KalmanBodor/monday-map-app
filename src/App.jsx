@@ -70,8 +70,9 @@ function App() {
 				try {
 					const meta = JSON.parse(status.column.settings_str);
 					const val = JSON.parse(status.value);
-					statusColor = meta.labels_colors[val.index]?.color || null;
+					statusColor = meta.labels_colors[val.index]?.color || 'orange';
 					status.statusColor = statusColor;
+					item.statusColor = statusColor;
 				} catch (e) {}
 			}
 
@@ -102,8 +103,8 @@ function App() {
 
 			let marker = new mapboxgl.Marker(
 					{
-						color: item.status.statusColor && item.status.statusColor.color
-							? item.status.statusColor.color
+						color: item.statusColor && item.statusColor.color
+							? item.statusColor.color
 							: "orange"
 					})
 				.setLngLat(coords)
