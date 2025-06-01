@@ -60,6 +60,27 @@ function App() {
 		const response = await monday.api(query);
 		console.log(response);
 		let items = response?.data?.boards?.[0]?.items_page?.items || [];
+
+		items = items.map(item => {
+			const addrCol = item.column_values.find(col => col.column.title.match(/address/i));
+			const status = item.column_values.find(col => col.column.title.match(/status/i));
+			let statusColor = null;
+
+			if (status?.value && status.column?.settings_str) {
+				try {
+					const meta = JSON.parse(status.column.settings_str);
+					const val = JSON.parse(status.value);
+					statusColor = meta.labels_colors[val.index]?.color || null;
+					status.statusColor = statusColor;
+				} catch (e) {}
+			}
+
+			return {
+				...item,
+				address: addrCol?.text || '',
+			};
+		});
+
 		setItems(items);
 
 		const map = mapRef.current;
@@ -72,43 +93,29 @@ function App() {
 
 		async function plotPins() {
 		  for (const item of items) {
-			const addrCol = item.column_values.find(col => col.column.title.match(/address/i));
-			item.address = addrCol?.text;
-
-			const status = item.column_values.find(col => col.column.title.match(/status/i));
-
-			if ( status ) {
-				if ( status.value && status.column.settings_str ) {
-					let statusMeta = {};
-					let statusParsed = {};
-					try {
-						statusMeta = JSON.parse(status.column.settings_str);
-						statusParsed = JSON.parse(status.value);
-					} catch (e) {}
-
-					if ( statusMeta && Object.keys(statusMeta) && statusParsed && Object.keys(statusParsed) ) {
-						status.statusColor = statusMeta.labels_colors[ statusParsed.index ];
-						status.statusStyle = { color: status.statusColor };
-					}
-				}
-			}
-
-			if (!addrCol) continue;
+			if (!item.address) continue;
 
 			const coords = await geocode(item.address);
 			if (!coords) continue;
 
 			markerCoords.current[item.id] = coords;
 
-			let marker = new mapboxgl.Marker({ color: status.statusColor ? status.statusColor : "orange" })
-			  .setLngLat(coords)
-			  .addTo(map);
+			let marker = new mapboxgl.Marker(
+					{
+						color: item.status.statusColor && item.status.statusColor.color
+							? item.status.statusColor.color
+							: "orange"
+					})
+				.setLngLat(coords)
+				.addTo(map);
 
 			const addrPop = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
 				.setHTML(
 					`<div class="pin-pop">
-						<div>${item.address}</div>
-						<div>${item.name}</div>
+						<div class="pin-marker-cont">
+							<div class="pin-marker-addr">${item.address}</div>
+							<div>${item.name}</div>
+						</div>
 					</div>`
 				);
 
@@ -138,7 +145,7 @@ function App() {
   const flyToItem = (id) => {
 	const coords = markerCoords.current[id];
 	if (coords && mapRef.current) {
-	  mapRef.current.flyTo({ center: coords, zoom: 15 });
+	  mapRef.current.flyTo({ center: coords, zoom: 13 });
 	}
   };
 

@@ -139,4 +139,14 @@
 
 .pin-pop {
   background-color: #181b34;
+  padding: 0;
+}
+
+.pin-marker-cont {
+  padding: 5px;
+}
+
+.pin-marker-addr {
+  font-size: larger;
+  font-weight: 200;
 }
