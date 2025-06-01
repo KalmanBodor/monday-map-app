@@ -42,6 +42,7 @@ function App() {
 				items {
 				  id
 				  name
+				  settings_str
 				  column_values {
 					id
 					value
@@ -57,6 +58,7 @@ function App() {
 		`;
 
 		const response = await monday.api(query);
+		console.log(response);
 		const items = response?.data?.boards?.[0]?.items_page?.items || [];
 		setItems(items);
 
