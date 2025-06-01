@@ -46,9 +46,9 @@ function App() {
 					id
 					value
 					text
-					settings_str
 					column {
 					  title
+					  settings_str
 					}
 				  }
 				}
