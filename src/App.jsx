@@ -93,9 +93,9 @@ function App() {
 				}
 			}
 
-			if (!address) continue;
+			if (!addrCol) continue;
 
-			const coords = await geocode(address);
+			const coords = await geocode(item.address);
 			if (!coords) continue;
 
 			markerCoords.current[item.id] = coords;
