@@ -59,7 +59,7 @@ function App() {
 
 		const response = await monday.api(query);
 		console.log(response);
-		const items = response?.data?.boards?.[0]?.items_page?.items || [];
+		let items = response?.data?.boards?.[0]?.items_page?.items || [];
 		setItems(items);
 
 		const map = mapRef.current;
@@ -72,8 +72,27 @@ function App() {
 
 		async function plotPins() {
 		  for (const item of items) {
-			const address = item.column_values.find(col => col.column.title.match(/address/i))?.text;
-			let status = item.column_values.find(col => col.id === "status")?.text || 'Prospective';
+			const addrCol = item.column_values.find(col => col.column.title.match(/address/i));
+			item['address'] = addrCol?.text;
+
+			const status = item.column_values.find(col => col.column.title.match(/status/i))?.[0];
+
+			if ( status ) {
+				if ( status.value && status.column.settings_str ) {
+					let statusMeta = {};
+					let statusParsed = {};
+					try {
+						statusMeta = JSON.parse(status.column.settings_str);
+						statusParsed = JSON.parse(status.value);
+					} catch (e) {}
+
+					if ( statusMeta && Object.keys(statusMeta) && statusParsed && Object.keys(statusParsed) ) {
+						status['statusColor'] = statusMeta.labels_colors[ statusParsed.index ];
+						status['statusStyle'] = `color: ${status.statusColor};`;
+					}
+				}
+			}
+
 			if (!address) continue;
 
 			const coords = await geocode(address);
@@ -81,14 +100,25 @@ function App() {
 
 			markerCoords.current[item.id] = coords;
 
-			new mapboxgl.Marker({ color: status === "Sold" ? "red" : "green" })
+			let marker = new mapboxgl.Marker({ color: status.statusColor ? status.statusColor : "orange" })
 			  .setLngLat(coords)
-			  .setPopup(
-				new mapboxgl.Popup().setHTML(
-				  `<div class="popup-${status.toLowerCase()}">${item.name} — ${status}</div>`
-				)
-			  )
 			  .addTo(map);
+
+			const addrPop = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
+				.setHTML(
+					`<div class="pin-pop">
+						<div>${item.address}</div>
+						<div>${item.name}</div>
+					</div>`
+				);
+
+			marker.getElement().addEventListener('mouseenter', () => {
+				addrPop.setLngLat(marker.getLngLat()).addTo(map);
+			});
+
+			marker.getElement().addEventListener('mouseleave', () => {
+				addrPop.remove();
+			});
 		  }
 		}
 
@@ -120,17 +150,16 @@ function App() {
 			</button>
 			<div className="cards-container">
 				{items.map(item => {
-				const address = item.column_values.find(col => col.column.title.match(/address/i))?.text || '(No address)';
 				return (
 					<div key={item.id} onClick={() => flyToItem(item.id)} className="card">
-					<div className="card-addr">{address}</div>
+					<div className="card-addr">{item.address}</div>
 					<div>{item.name}</div>
 					<ul className="item-cols">
 						{item.column_values.map((col, idx) => (
-						<li key={idx}>
-							<div className="col-label">{col.column.title}</div>
-							<div className="col-val">{col.text}</div>
-						</li>
+							<li key={idx}>
+								<div className="col-label">{col.column.title}</div>
+								<div className="col-val" style="{col.statusStyle}">{col.text}</div>
+							</li>
 						))}
 					</ul>
 					</div>
