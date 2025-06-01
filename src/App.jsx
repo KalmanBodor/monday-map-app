@@ -88,7 +88,7 @@ function App() {
 
 					if ( statusMeta && Object.keys(statusMeta) && statusParsed && Object.keys(statusParsed) ) {
 						status.statusColor = statusMeta.labels_colors[ statusParsed.index ];
-						status.statusStyle = { color: col.statusColor };
+						status.statusStyle = { color: status.statusColor };
 					}
 				}
 			}
