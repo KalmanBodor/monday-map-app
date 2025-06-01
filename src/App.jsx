@@ -73,9 +73,9 @@ function App() {
 		async function plotPins() {
 		  for (const item of items) {
 			const addrCol = item.column_values.find(col => col.column.title.match(/address/i));
-			item['address'] = addrCol?.text;
+			item.address = addrCol?.text;
 
-			const status = item.column_values.find(col => col.column.title.match(/status/i))?.[0];
+			const status = item.column_values.find(col => col.column.title.match(/status/i));
 
 			if ( status ) {
 				if ( status.value && status.column.settings_str ) {
@@ -87,8 +87,8 @@ function App() {
 					} catch (e) {}
 
 					if ( statusMeta && Object.keys(statusMeta) && statusParsed && Object.keys(statusParsed) ) {
-						status['statusColor'] = statusMeta.labels_colors[ statusParsed.index ];
-						status['statusStyle'] = { color: col.statusColor };
+						status.statusColor = statusMeta.labels_colors[ statusParsed.index ];
+						status.statusStyle = { color: col.statusColor };
 					}
 				}
 			}
