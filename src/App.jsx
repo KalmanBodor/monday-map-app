@@ -42,11 +42,11 @@ function App() {
 				items {
 				  id
 				  name
-				  settings_str
 				  column_values {
 					id
 					value
 					text
+					settings_str
 					column {
 					  title
 					}
