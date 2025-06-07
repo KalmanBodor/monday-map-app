@@ -206,8 +206,9 @@ function App() {
 
 			{hoveredItem && mapRef.current && (
 				<div
-						className={`custom-tooltip ${hoveredItem ? 'show' : ''}`}
+						className={`pin-tooltip ${hoveredItem ? 'show' : ''}`}
 						style={{
+							position: 'absolute',
 							left: `${mapRef.current.project(hoveredItem.coords).x}px`,
 							top: `${mapRef.current.project(hoveredItem.coords).y - 40}px`,
 							pointerEvents: 'none',
