@@ -206,14 +206,12 @@ function App() {
 
 			{hoveredItem && mapRef.current && (
 				<div
-					className="custom-tooltip"
-					style={{
-					position: 'absolute',
-					left: `${mapRef.current.project(hoveredItem.coords).x}px`,
-					top: `${mapRef.current.project(hoveredItem.coords).y - 40}px`,
-					pointerEvents: 'none',
-					}}
-				>
+						className={`custom-tooltip ${hoveredItem ? 'show' : ''}`}
+						style={{
+							left: `${mapRef.current.project(hoveredItem.coords).x}px`,
+							top: `${mapRef.current.project(hoveredItem.coords).y - 40}px`,
+							pointerEvents: 'none',
+						}}>
 					<div className="tooltip-content">
 					<div className="tooltip-address">{hoveredItem.address}</div>
 					<div className="tooltip-name">{hoveredItem.name}</div>
