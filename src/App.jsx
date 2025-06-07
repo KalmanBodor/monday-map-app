@@ -88,53 +88,58 @@ function App() {
 		const map = mapRef.current;
 
 		async function geocode(address) {
-		  const resp = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`);
-		  const data = await resp.json();
-		  return data.features[0]?.center;
+			const resp = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`);
+			const data = await resp.json();
+			return data.features[0]?.center;
 		}
 
 		async function plotPins() {
-		  for (const item of items) {
-			if (!item.address) continue;
+			for (const item of items) {
+				if (!item.address) continue;
 
-			const coords = await geocode(item.address);
-			if (!coords) continue;
+				const coords = await geocode(item.address);
+				if (!coords) continue;
 
-			markerCoords.current[item.id] = coords;
+				markerCoords.current[item.id] = coords;
+				item.coords = [ coords[1], coords[0] ].join(',');
+				item.driveLink = isIOS()
+					? `http://maps.apple.com/?daddr=${item.coords}`
+					: `https://www.google.com/maps/dir/?api=1&destination=${item.coords}`;
 
-			let marker = new mapboxgl.Marker(
-					{
-						color: item.statusColor
-							? item.statusColor
-							: "orange"
-					})
-				.setLngLat(coords)
-				.addTo(map);
+				let marker = new mapboxgl.Marker(
+						{
+							color: item.statusColor
+								? item.statusColor
+								: "orange"
+						})
+					.setLngLat(coords)
+					.addTo(map);
 
-			const addrPop = new mapboxgl.Popup({ closeButton: false, closeOnClick: false })
-				.setHTML(
-					`<div class="pin-pop">
-						<div class="pin-marker-cont">
-							<div class="pin-marker-addr">${item.address}</div>
-							<div>${item.name}</div>
-						</div>
-					</div>`
-				);
+				const addrPop = new mapboxgl.Popup({
+						closeButton: false,
+						closeOnClick: false,
+						offset: 25,
+					}).setHTML(
+						`<div class="pin-pop">
+							<div class="pin-marker-cont">
+								<div class="pin-marker-addr">${item.address}</div>
+								<div>${item.name}</div>
+							</div>
+						</div>`
+					);
 
-			marker.getElement().addEventListener('mouseenter', () => {
-				addrPop.setLngLat(marker.getLngLat()).addTo(map);
-			});
+				marker.setPopup(addrPop);
 
-			marker.getElement().addEventListener('mouseleave', () => {
-				addrPop.remove();
-			});
-		  }
+				marker.getElement().addEventListener('mouseenter', () => {
+					addrPop.addTo(map);
+				});
+			}
 		}
 
 		if (map.loaded()) {
-		  plotPins();
+			plotPins();
 		} else {
-		  map.on('load', plotPins);
+			map.on('load', plotPins);
 		}
 
 		setLoading(false);
@@ -155,7 +160,7 @@ function App() {
 	<div id="root">
 	 	<div className={`sidebar ${!sidebarOpen ? 'closed' : ''}`}>
 			<button className="sbr-toggle-btn list-toggle" onClick={() => setSidebarOpen(false)}>
-				Hide Properties
+				&laquo; Hide Properties
 			</button>
 			<div className="cards-container">
 				{items.map(item => {
@@ -167,13 +172,25 @@ function App() {
 								flyToItem(item.id);
 							}}
 							className={`card ${selectedItemId === item.id ? 'selected' : ''}`}>
-							<div className="card-addr">{item.address}</div>
+							<div className="card-addr">
+								<span>{item.address}</span>
+								<a
+									href={item.driveLink}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="map-link"
+									title="Get Directions">
+										Drive there
+								</a>
+							</div>
 							<div>{item.name}</div>
 							<ul className="item-cols">
 								{item.column_values.map((col, idx) => (
 									<li key={idx}>
 										<div className="col-label">{col.column.title}</div>
-										<div className="col-val" style={{ ...(col.statusColor && { color: col.statusColor }) }}>{col.text}</div>
+										<div className="col-val" style={{ ...(col.statusColor && { color: col.statusColor }) }}>
+											{ formatMaybeDate(col.text) }
+										</div>
 									</li>
 								))}
 							</ul>
@@ -185,13 +202,24 @@ function App() {
 
 		{!sidebarOpen && (
 			<button className="sbr-toggle-btn sidebar-toggle" onClick={() => setSidebarOpen(true)}>
-				Show Properties
+				Show Properties &raquo;
 			</button>
 		)}
 	  	<div ref={mapContainer} className="map-container" />
 	  		{loading && <div style={{ position: 'absolute', zIndex: 1, padding: 10 }}>Loading map data...</div>}
 		</div>
   );
+
+	function formatMaybeDate(maybeDate) {
+		if ( ! /\d{4}-\d{2}-\d{2}T/.test(col.text) ) return maybeDate;
+		const date = new Date(maybeDate);
+		if (isNaN(date)) return maybeDate;
+		return new Intl.DateTimeFormat('en-US').format(date);
+	}
+
+	function isIOS() {
+		return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+	}
 }
 
 export default App;
