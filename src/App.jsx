@@ -14,6 +14,7 @@ function App() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedItemId, setSelectedItemId] = useState(null);
 
   useEffect(() => {
 	mapRef.current = new mapboxgl.Map({
@@ -146,7 +147,7 @@ function App() {
   const flyToItem = (id) => {
 	const coords = markerCoords.current[id];
 	if (coords && mapRef.current) {
-	  mapRef.current.flyTo({ center: coords, zoom: 13 });
+	  mapRef.current.flyTo({ center: coords, zoom: 17 });
 	}
   };
 
@@ -159,7 +160,13 @@ function App() {
 			<div className="cards-container">
 				{items.map(item => {
 					return (
-						<div key={item.id} onClick={() => flyToItem(item.id)} className="card">
+						<div
+							key={item.id}
+							onClick={() => {
+								setSelectedItemId(item.id);
+								flyToItem(item.id);
+							}}
+							className={`card ${selectedItemId === item.id ? 'selected' : ''}`}>
 							<div className="card-addr">{item.address}</div>
 							<div>{item.name}</div>
 							<ul className="item-cols">
