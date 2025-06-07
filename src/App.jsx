@@ -211,7 +211,7 @@ function App() {
   );
 
 	function formatMaybeDate(maybeDate) {
-		if ( ! /\d{4}-\d{2}-\d{2}T/.test(col.text) ) return maybeDate;
+		if ( ! /\d{4}-\d{2}-\d{2}T/.test(maybeDate) ) return maybeDate;
 		const date = new Date(maybeDate);
 		if (isNaN(date)) return maybeDate;
 		return new Intl.DateTimeFormat('en-US').format(date);
