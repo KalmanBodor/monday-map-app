@@ -103,8 +103,8 @@ function App() {
 
 			let marker = new mapboxgl.Marker(
 					{
-						color: item.statusColor && item.statusColor.color
-							? item.statusColor.color
+						color: item.status.statusColor && item.status.statusColor.color
+							? item.status.statusColor.color
 							: "orange"
 					})
 				.setLngLat(coords)
