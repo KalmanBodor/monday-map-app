@@ -184,7 +184,7 @@ function App() {
 										<li key={idx}>
 											<div className="col-label">{col.column.title}</div>
 											<div className="col-val" style={{ ...(col.statusColor && { color: col.statusColor }) }}>
-												{ formatMaybeDate(col.text) }
+												{ autoFormat(col.text) }
 											</div>
 										</li>
 									))}
@@ -208,6 +208,7 @@ function App() {
 				<div
 						className={`pin-tooltip ${hoveredItem ? 'show' : ''}`}
 						style={{
+							position: 'absolute',
 							left: `${mapRef.current.project(hoveredItem.coords).x}px`,
 							top: `${mapRef.current.project(hoveredItem.coords).y - 40}px`,
 							pointerEvents: 'none',
@@ -221,11 +222,16 @@ function App() {
 		</div>
   	);
 
-	function formatMaybeDate(maybeDate) {
-		if ( ! /\d{4}-\d{2}-\d{2}/.test(maybeDate) ) return maybeDate;
-		const date = new Date(maybeDate);
-		if (isNaN(date)) return maybeDate;
-		return new Intl.DateTimeFormat('en-US').format(date);
+	function autoFormat(value) {
+		if ( /\d{4}-\d{2}-\d{2}/.test(value) ) {
+			const date = new Date(value);
+			if (isNaN(date)) return value;
+			return new Intl.DateTimeFormat('en-US').format(date);
+		} else if ( /^\d+$/.test(value) ) {
+			return value.toLocaleString();
+		}
+
+		return value;
 	}
 
 	function isIOS() {

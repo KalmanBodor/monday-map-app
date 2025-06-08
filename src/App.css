@@ -84,9 +84,10 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5em;
-  font-weight: bold;
-  font-size: 1rem;
   margin-bottom: 6px;
+  font-size: 1rem;       /* or 16px depending on base config */
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .map-link {
@@ -101,7 +102,9 @@
   list-style: none;
   padding: 0;
   margin-top: 5px;
-  font-size: 12px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .item-cols li {
@@ -111,13 +114,14 @@
 }
 
 .col-label {
-  font-weight: bold;
+  font-weight: 500;
   flex: 1;
 }
 
 .col-val {
   text-align: right;
   flex: 1;
+  font-weight: 400;
 }
 
 .pin-pop {
