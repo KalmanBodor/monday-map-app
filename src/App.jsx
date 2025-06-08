@@ -202,29 +202,19 @@ function App() {
 											alt="Thumbnail"
 											className="card-thumb"
 											onClick={(e) => {
-											e.stopPropagation();
-											setGalleryImages(item.images);
-											setCurrentIndex(0);
+												e.stopPropagation();
+												setGalleryImages(item.images);
+												setCurrentIndex(0);
 											}}
 											onError={(e) => {
-											e.currentTarget.src = '/placeholder.jpg'; // fallback image path
-											e.currentTarget.classList.add('image-error');
+												e.currentTarget.src = '/placeholder.jpg';
+												e.currentTarget.classList.add('image-error');
 											}}
 										/>
 										)
 									: (
-										<div
-											className="thumb-placeholder"
-											title="To show photos here, go to your board, add a Files column, and upload images.">
-											<div className="thumb-icon">
-												<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-													<path d="M4 4h16v16H4z" fill="none" />
-													<path d="M20 4H4v16h16V4zm-2 2v2h-4V6h4zM6 6h6v4H6V6zm0 6h12v6H6v-6z" />
-												</svg>
-											</div>
-											<div className="thumb-text">
-												<strong>Add images</strong><br />via file column
-											</div>
+										<div className="thumb-placeholder" title="Add a file-type column and upload an image to display a gallery here.">
+											📷 No image
 										</div>
 									)
 								}
