@@ -195,29 +195,18 @@ function App() {
 									flyToItem(item.id);
 								}}
 								className={`card ${selectedItemId === item.id ? 'selected' : ''}`}>
-								{item.thumb
-									? (
-										<img
-											src={item.thumb}
-											alt="Thumbnail"
-											className="card-thumb"
-											onClick={(e) => {
-												e.stopPropagation();
-												setGalleryImages(item.images);
-												setCurrentIndex(0);
-											}}
-											onError={(e) => {
-												e.currentTarget.src = '/placeholder.jpg';
-												e.currentTarget.classList.add('image-error');
-											}}
-										/>
-										)
-									: (
-										<div className="thumb-placeholder" title="Add a file-type column and upload an image to display a gallery here.">
-											📷 No image
-										</div>
-									)
-								}
+								{item.thumb && (
+									<img
+										src={item.thumb}
+										alt="Thumbnail"
+										className="card-thumb"
+										onClick={(e) => {
+										e.stopPropagation();
+										setGalleryImages(item.images);
+										setCurrentIndex(0);
+										}}
+									/>
+								)}
 								<div className="card-addr">
 									<span>{item.address}</span>
 									<a
