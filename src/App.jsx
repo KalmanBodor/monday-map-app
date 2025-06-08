@@ -91,9 +91,11 @@ function App() {
 								const files = fileObj.files || [];
 								files.forEach(f => {
 									if (f.isImage === "true") {
-										let urlBase = col.text.match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
+										let listSplit = col.text.split(/,\s*/) || [];
+										let urlBase = listSplit[0].match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
 										urlBase = urlBase[0];
-										imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
+
+										if (urlBase) imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
 									}
 								});
 							} catch (e) {
