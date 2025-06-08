@@ -85,14 +85,14 @@
   align-items: center;
   gap: 0.5em;
   margin-bottom: 6px;
-  font-size: 1rem;       /* or 16px depending on base config */
-  font-weight: 500;
+  font-size: 1.1rem;       /* or 16px depending on base config */
+  font-weight: 600;
   line-height: 1.5;
 }
 
 .map-link {
   text-decoration: none;
-  font-size: 1.1em;
+  font-size: 0.9rem;
   padding: 2px 6px;
   color: #0077cc;
   transition: color 0.2s;
@@ -101,10 +101,9 @@
 .item-cols {
   list-style: none;
   padding: 0;
-  margin-top: 5px;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .item-cols li {
@@ -122,20 +121,6 @@
   text-align: right;
   flex: 1;
   font-weight: 400;
-}
-
-.pin-pop {
-  background-color: #181b34;
-  padding: 0;
-}
-
-.pin-marker-cont {
-  padding: 5px;
-}
-
-.pin-marker-addr {
-  font-size: larger;
-  font-weight: 200;
 }
 
 .pin-tooltip {

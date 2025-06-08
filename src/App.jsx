@@ -228,7 +228,11 @@ function App() {
 			if (isNaN(date)) return value;
 			return new Intl.DateTimeFormat('en-US').format(date);
 		} else if ( /^\d+$/.test(value) ) {
-			return value.toLocaleString();
+			const formatter = new Intl.NumberFormat('en-US', {
+				minimumFractionDigits: 0,
+				maximumFractionDigits: 2
+			});
+			return formatter.format(value);
 		}
 
 		return value;
