@@ -156,11 +156,51 @@
 
 .card-thumb {
   width: 100%;
-  max-height: 80px;
+  max-height: 120px;
   object-fit: cover;
   border-radius: 4px;
   margin-bottom: 6px;
   cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.card-thumb.image-error {
+  opacity: 0.6;
+  filter: grayscale(1);
+}
+
+.thumb-placeholder {
+  width: 100%;
+  height: 120px;
+  background: #2a2e4c;
+  color: #aab0cc;
+  border: 2px dashed #4f5b78;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.thumb-placeholder:hover {
+  background: #333857;
+  border-color: #0073ea;
+  color: #ffffff;
+}
+
+.thumb-icon {
+  margin-bottom: 6px;
+  color: #0073ea;
+}
+
+.thumb-placeholder:hover .thumb-icon {
+  color: #66b2ff;
 }
 
 .overlay {

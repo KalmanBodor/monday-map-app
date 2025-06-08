@@ -85,15 +85,19 @@ function App() {
 
 					const imageUrls = [];
 					item.column_values.forEach(col => {
-						if (col.id.startsWith("file_") && col.value) {
+						if (col.value && col.value.files && col.text) {
 							try {
-								const fileObj = JSON.parse(col.value);
-								const files = fileObj.files || [];
-								files.forEach(f => {
-									if (f.isImage === "true") {
-										imageUrls.push(`https://test607479.monday.com/protected_static/29580945/resources/${f.assetId}/${f.name}`);
-									}
-								});
+								let urlBase = col.text.match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
+								if (urlBase) {
+									urlBase = urlBase[0];
+									const fileObj = JSON.parse(col.value);
+									const files = fileObj.files || [];
+									files.forEach(f => {
+										if (f.isImage === "true") {
+											imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
+										}
+									});
+								}
 							} catch (e) {
 								console.warn("Error parsing file column:", e);
 							}
@@ -191,18 +195,39 @@ function App() {
 									flyToItem(item.id);
 								}}
 								className={`card ${selectedItemId === item.id ? 'selected' : ''}`}>
-								{item.thumb && (
-									<img
-										src={item.thumb}
-										alt="Thumbnail"
-										className="card-thumb"
-										onClick={(e) => {
-										e.stopPropagation();
-										setGalleryImages(item.images);
-										setCurrentIndex(0);
-										}}
-									/>
-								)}
+								{item.thumb
+									? (
+										<img
+											src={item.thumb}
+											alt="Thumbnail"
+											className="card-thumb"
+											onClick={(e) => {
+											e.stopPropagation();
+											setGalleryImages(item.images);
+											setCurrentIndex(0);
+											}}
+											onError={(e) => {
+											e.currentTarget.src = '/placeholder.jpg'; // fallback image path
+											e.currentTarget.classList.add('image-error');
+											}}
+										/>
+										)
+									: (
+										<div
+											className="thumb-placeholder"
+											title="To show photos here, go to your board, add a Files column, and upload images.">
+											<div className="thumb-icon">
+												<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+													<path d="M4 4h16v16H4z" fill="none" />
+													<path d="M20 4H4v16h16V4zm-2 2v2h-4V6h4zM6 6h6v4H6V6zm0 6h12v6H6v-6z" />
+												</svg>
+											</div>
+											<div className="thumb-text">
+												<strong>Add images</strong><br />via file column
+											</div>
+										</div>
+									)
+								}
 								<div className="card-addr">
 									<span>{item.address}</span>
 									<a
