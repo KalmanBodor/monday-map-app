@@ -87,10 +87,13 @@ function App() {
 					item.column_values.forEach(col => {
 						if (col.id.startsWith("file_") && col.value && col.text) {
 							try {
-								const files = col.text.split(/,\s*/) || [];
+								const fileObj = JSON.parse(col.value);
+								const files = fileObj.files || [];
 								files.forEach(f => {
 									if (f.isImage === "true") {
-										imageUrls.push(f);
+										let urlBase = col.text.match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
+										urlBase = urlBase[0];
+										imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
 									}
 								});
 							} catch (e) {
