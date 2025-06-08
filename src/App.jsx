@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import './App.css';
 import mondaySdk from "monday-sdk-js";
+import Modal from 'react-modal';
+import './App.css';
 
 const monday = mondaySdk();
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -16,6 +17,8 @@ function App() {
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [selectedItemId, setSelectedItemId] = useState(null);
 	const [hoveredItem, setHoveredItem] = useState(null);
+	const [galleryImages, setGalleryImages] = useState([]);
+	const [currentIndex, setCurrentIndex] = useState(0);
 
 	useEffect(() => {
 		mapRef.current = new mapboxgl.Map({
@@ -30,6 +33,8 @@ function App() {
 
 		return () => mapRef.current?.remove();
 	}, []);
+
+	Modal.setAppElement('#root');
 
 	useEffect(() => {
 		monday.listen("context", async (res) => {
@@ -77,6 +82,25 @@ function App() {
 							item.statusColor = statusColor;
 						} catch (e) {}
 					}
+
+					const imageUrls = [];
+					item.column_values.forEach(col => {
+						if (col.id.startsWith("file_") && col.value) {
+							try {
+								const fileObj = JSON.parse(col.value);
+								const files = fileObj.files || [];
+								files.forEach(f => {
+									if (f.isImage === "true") {
+										imageUrls.push(`https://test607479.monday.com/protected_static/29580945/resources/${f.assetId}/${f.name}`);
+									}
+								});
+							} catch (e) {
+								console.warn("Error parsing file column:", e);
+							}
+						}
+					});
+					item.images = imageUrls;
+					item.thumb = imageUrls[0] || null;
 
 					return {
 						...item,
@@ -167,6 +191,18 @@ function App() {
 									flyToItem(item.id);
 								}}
 								className={`card ${selectedItemId === item.id ? 'selected' : ''}`}>
+								{item.thumb && (
+									<img
+										src={item.thumb}
+										alt="Thumbnail"
+										className="card-thumb"
+										onClick={(e) => {
+										e.stopPropagation();
+										setGalleryImages(item.images);
+										setCurrentIndex(0);
+										}}
+									/>
+								)}
 								<div className="card-addr">
 									<span>{item.address}</span>
 									<a
@@ -219,6 +255,22 @@ function App() {
 					</div>
 				</div>
 			)}
+			<Modal
+				isOpen={galleryImages.length > 0}
+				onRequestClose={() => setGalleryImages([])}
+				className="modal"
+				overlayClassName="overlay"
+				contentLabel="Image Gallery"
+				>
+				{galleryImages.length > 0 && (
+					<div className="modal-content">
+					<button className="close-btn" onClick={() => setGalleryImages([])}>×</button>
+					<button className="nav-btn left" onClick={() => setCurrentIndex(i => (i - 1 + galleryImages.length) % galleryImages.length)}>‹</button>
+					<img src={galleryImages[currentIndex]} alt="Gallery" className="gallery-image-large" />
+					<button className="nav-btn right" onClick={() => setCurrentIndex(i => (i + 1) % galleryImages.length)}>›</button>
+					</div>
+				)}
+			</Modal>
 		</div>
   	);
 
