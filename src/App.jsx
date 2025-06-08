@@ -89,7 +89,7 @@ function App() {
 							try {
 								let urlBase = col.text.match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
 								if (urlBase) {
-									urlBase = urlBase[0];
+									urlBase = urlBase[1];
 									const fileObj = JSON.parse(col.value);
 									const files = fileObj.files || [];
 									files.forEach(f => {
