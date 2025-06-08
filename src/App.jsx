@@ -86,6 +86,7 @@ function App() {
 					const imageUrls = [];
 					item.column_values.forEach(col => {
 						if (col.id.startsWith("file_") && col.value && col.text) {
+							col.skipDisplayFile = true;
 							try {
 								const fileObj = JSON.parse(col.value);
 								const files = fileObj.files || [];
@@ -101,6 +102,8 @@ function App() {
 							} catch (e) {
 								console.warn("Error parsing file column:", e);
 							}
+						} else {
+							col.skipDisplayFile = false;
 						}
 					});
 					item.images = imageUrls;
@@ -221,12 +224,14 @@ function App() {
 								<div>{item.name}</div>
 								<ul className="item-cols">
 									{item.column_values.map((col, idx) => (
-										<li key={idx}>
-											<div className="col-label">{col.column.title}</div>
-											<div className="col-val" style={{ ...(col.statusColor && { color: col.statusColor }) }}>
-												{ autoFormat(col.text) }
-											</div>
-										</li>
+										!col.skipDisplayFile && (
+											<li key={idx}>
+												<div className="col-label">{col.column.title}</div>
+												<div className="col-val" style={{ ...(col.statusColor && { color: col.statusColor }) }}>
+													{ autoFormat(col.text) }
+												</div>
+											</li>
+										)
 									))}
 								</ul>
 							</div>
