@@ -85,22 +85,24 @@ function App() {
 
 					const imageUrls = [];
 					item.column_values.forEach(col => {
-						if (col.id.startsWith("file_") && col.value && col.text) {
+						if (col.id.startsWith("file_")) {
 							col.skipDisplayFile = true;
-							try {
-								const fileObj = JSON.parse(col.value);
-								const files = fileObj.files || [];
-								files.forEach(f => {
-									if (f.isImage === "true") {
-										let listSplit = col.text.split(/,\s*/) || [];
-										let urlBase = listSplit[0].match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
-										urlBase = urlBase[0];
+							if (col.value && col.text) {
+								try {
+									const fileObj = JSON.parse(col.value);
+									const files = fileObj.files || [];
+									files.forEach(f => {
+										if (f.isImage === "true") {
+											let listSplit = col.text.split(/,\s*/) || [];
+											let urlBase = listSplit[0].match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
+											urlBase = urlBase[0];
 
-										if (urlBase) imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
-									}
-								});
-							} catch (e) {
-								console.warn("Error parsing file column:", e);
+											if (urlBase) imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
+										}
+									});
+								} catch (e) {
+									console.warn("Error parsing file column:", e);
+								}
 							}
 						} else {
 							col.skipDisplayFile = false;
