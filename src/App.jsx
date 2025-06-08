@@ -85,19 +85,14 @@ function App() {
 
 					const imageUrls = [];
 					item.column_values.forEach(col => {
-						if (col.id.startsWith("file_") && col.value) {
+						if (col.id.startsWith("file_") && col.value && col.text) {
 							try {
-								let urlBase = col.text.match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
-								if (urlBase) {
-									urlBase = urlBase[1];
-									const fileObj = JSON.parse(col.value);
-									const files = fileObj.files || [];
-									files.forEach(f => {
-										if (f.isImage === "true") {
-											imageUrls.push(`${urlBase}/${f.assetId}/${f.name}`);
-										}
-									});
-								}
+								const files = col.text.split(/,\s*/) || [];
+								files.forEach(f => {
+									if (f.isImage === "true") {
+										imageUrls.push(f);
+									}
+								});
 							} catch (e) {
 								console.warn("Error parsing file column:", e);
 							}
