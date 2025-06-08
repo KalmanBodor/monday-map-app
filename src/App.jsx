@@ -85,7 +85,7 @@ function App() {
 
 					const imageUrls = [];
 					item.column_values.forEach(col => {
-						if (col.value && col.value.files && col.text) {
+						if (col.id.startsWith("file_") && col.value) {
 							try {
 								let urlBase = col.text.match(/https:\/\/.*.monday.com\/protected_static\/\d+\/resources\//);
 								if (urlBase) {
