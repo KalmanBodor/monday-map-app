@@ -66,7 +66,8 @@
 
 .card {
   padding: 8px;
-  border-bottom: 1px solid rgb(213, 216, 223);
+  background-color: rgb(48, 50, 78);
+  border-bottom: 1px solid #4b4e69;
   cursor: pointer;
 }
 
