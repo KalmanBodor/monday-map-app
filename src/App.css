@@ -186,7 +186,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
-  background-color: #d5d8df;
+  background-color: #fff;
   color: #323338;
   padding: 6px 10px;
   border-radius: 4px;
@@ -199,6 +199,19 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 100;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #2a2e4c;
 }
 
 .no-photo-tooltip:hover .tooltip {
