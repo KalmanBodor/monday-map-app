@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import mondaySdk from "monday-sdk-js";
 import Modal from 'react-modal';
 import './App.css';
+import photoPlaceholder from './assets/city_skyline.svg';
 
 const monday = mondaySdk();
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -200,18 +201,31 @@ function App() {
 									flyToItem(item.id);
 								}}
 								className={`card ${selectedItemId === item.id ? 'selected' : ''}`}>
-								{item.thumb && (
-									<img
-										src={item.thumb}
-										alt="Thumbnail"
-										className="card-thumb"
-										onClick={(e) => {
-										e.stopPropagation();
-										setGalleryImages(item.images);
-										setCurrentIndex(0);
-										}}
-									/>
-								)}
+								<div className="thumb-wrapper">
+									{item.thumb ? (
+										<img
+											src={item.thumb}
+											alt="Thumbnail"
+											className="card-thumb"
+											onClick={(e) => {
+												e.stopPropagation();
+												setGalleryImages(item.images);
+												setCurrentIndex(0);
+											}}
+										/>
+									) : (
+										<div className="card-thumb no-photo-tooltip">
+											<img
+												src={photoPlaceholder}
+												alt="No photo"
+												className="thumb-img"
+											/>
+											<div className="tooltip">
+												Add a “Files” column and upload images to display a photo gallery here.
+											</div>
+										</div>
+									)}
+								</div>
 								<div className="card-addr">
 									<span>{item.address}</span>
 									<a
