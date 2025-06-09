@@ -66,9 +66,10 @@
 
 .card {
   padding: 8px;
-  background-color: rgb(48, 50, 78);
-  border-bottom: 1px solid #4b4e69;
+  background-color: #30324e;
   cursor: pointer;
+  margin-top: 9px;
+  border-radius: 5px;
 }
 
 .card.selected {
@@ -77,8 +78,7 @@
 
 .card:hover {
 	background-color: #6768794D;
-	box-shadow: 0px 4px 3px 0px #797e93;
-  z-index: 100;
+	box-shadow:  0px 1px 3px 3px #797e93;
 }
 
 .card-addr {
@@ -186,18 +186,18 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
-  background-color: #2a2e4c;
-  color: #ccc;
+  background-color: #d5d8df;
+  color: #323338;
   padding: 6px 10px;
   border-radius: 4px;
   font-size: 0.75rem;
   line-height: 1.2;
   white-space: normal;
-  max-width: 240px;
+  max-width: 300px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 10;
+  z-index: 100;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
