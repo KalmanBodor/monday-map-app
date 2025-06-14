@@ -125,6 +125,7 @@ function App() {
 				async function geocode(address) {
 					const resp = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`);
 					const data = await resp.json();
+					console.log(data);
 					return data.features[0]?.center;
 				}
 
