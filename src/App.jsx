@@ -1,3 +1,4 @@
+import './polyfill.js'; // Import polyfills first
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -10,14 +11,13 @@ import {
 	Text,
 	Label,
 	Loader,
-	IconButton,
+	Icon,
 	Tooltip,
 	Avatar,
 	Flex,
 	Box
 } from '@vibe/core';
-// Icons temporarily removed until we find correct names
-// import { } from '@vibe/icons';
+import '@vibe/core/tokens'; // Import CSS tokens
 import './App.css';
 import photoPlaceholder from './assets/city_skyline.svg';
 
@@ -444,7 +444,7 @@ function App() {
 								size="small"
 								kind={selectedItems.size > 0 ? "primary" : "tertiary"}
 							>
-								Route ({selectedItems.size})
+								🗺️ Route ({selectedItems.size})
 							</Button>
 						</Tooltip>
 						
@@ -455,7 +455,7 @@ function App() {
 								size="small"
 								kind={selectedItems.size > 0 ? "primary" : "tertiary"}
 							>
-								PDF ({selectedItems.size})
+								📄 PDF ({selectedItems.size})
 							</Button>
 						</Tooltip>
 					</Flex>
@@ -604,25 +604,31 @@ function App() {
 			>
 				{galleryImages.length > 0 && (
 					<Box className="modal-content">
-						<button 
+						<Button 
 							onClick={() => setGalleryImages([])}
 							className="close-btn"
+							kind="tertiary"
+							size="small"
 						>
 							×
-						</button>
-						<button 
+						</Button>
+						<Button 
 							onClick={() => setCurrentIndex(i => (i - 1 + galleryImages.length) % galleryImages.length)}
 							className="nav-btn left"
+							kind="tertiary"
+							size="small"
 						>
 							‹
-						</button>
+						</Button>
 						<img src={galleryImages[currentIndex]} alt="Gallery" className="gallery-image-large" />
-						<button 
+						<Button 
 							onClick={() => setCurrentIndex(i => (i + 1) % galleryImages.length)}
 							className="nav-btn right"
+							kind="tertiary"
+							size="small"
 						>
 							›
-						</button>
+						</Button>
 					</Box>
 				)}
 			</Modal>
