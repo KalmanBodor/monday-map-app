@@ -450,26 +450,36 @@ function App() {
 					/>
 					
 					<Flex gap="small" marginTop="small">
-						<Tooltip content="Select at least one property using the checkboxes to plan a route.">
-							<Button
-								onClick={handleRoutePlanning}
-								disabled={selectedItems.size === 0}
-								size="small"
-								kind={selectedItems.size > 0 ? "primary" : "tertiary"}
-							>
-								🗺️ Route ({selectedItems.size})
-							</Button>
+						<Tooltip 
+							content="Select at least one property using the checkboxes to plan a route."
+							position="top"
+						>
+							<div>
+								<Button
+									onClick={handleRoutePlanning}
+									disabled={selectedItems.size === 0}
+									size="small"
+									kind={selectedItems.size > 0 ? "primary" : "tertiary"}
+								>
+									🗺️ Route ({selectedItems.size})
+								</Button>
+							</div>
 						</Tooltip>
 						
-						<Tooltip content="Use the checkboxes to choose which properties to include in the PDF.">
-							<Button
-								onClick={handlePDFGeneration}
-								disabled={selectedItems.size === 0}
-								size="small"
-								kind={selectedItems.size > 0 ? "primary" : "tertiary"}
-							>
-								📄 PDF ({selectedItems.size})
-							</Button>
+						<Tooltip 
+							content="Use the checkboxes to choose which properties to include in the PDF."
+							position="top"
+						>
+							<div>
+								<Button
+									onClick={handlePDFGeneration}
+									disabled={selectedItems.size === 0}
+									size="small"
+									kind={selectedItems.size > 0 ? "primary" : "tertiary"}
+								>
+									📄 PDF ({selectedItems.size})
+								</Button>
+							</div>
 						</Tooltip>
 					</Flex>
 				</Box>
@@ -499,15 +509,20 @@ function App() {
 												}}
 											/>
 										) : (
-											<Tooltip content="Add a 'Files' column and upload images to display a photo gallery here.">
-												<Box className="card-thumb no-photo">
-													<Avatar
-														src={photoPlaceholder}
-														alt="No photo"
-														size="large"
-														type="img"
-													/>
-												</Box>
+											<Tooltip 
+												content="Add a 'Files' column and upload images to display a photo gallery here."
+												position="top"
+											>
+												<div>
+													<Box className="card-thumb no-photo">
+														<Avatar
+															src={photoPlaceholder}
+															alt="No photo"
+															size="large"
+															type="img"
+														/>
+													</Box>
+												</div>
 											</Tooltip>
 										)}
 									</Box>
@@ -522,12 +537,17 @@ function App() {
 										</Text>
 										
 										<Flex align="center" gap="small" marginTop="xs">
-											<Tooltip content="Select for route planning or printing to PDF">
-												<Checkbox
-													checked={selectedItems.has(item.id)}
-													onChange={(checked) => handleItemSelection(item.id, checked)}
-													onClick={(e) => e.stopPropagation()}
-												/>
+											<Tooltip 
+												content="Select for route planning or printing to PDF"
+												position="top"
+											>
+												<div>
+													<Checkbox
+														checked={selectedItems.has(item.id)}
+														onChange={(checked) => handleItemSelection(item.id, checked)}
+														onClick={(e) => e.stopPropagation()}
+													/>
+												</div>
 											</Tooltip>
 										</Flex>
 										
