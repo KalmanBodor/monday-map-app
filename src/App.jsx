@@ -1,4 +1,4 @@
-import './polyfill.js'; // Import polyfills first
+import './polyfills'; // Import polyfills first
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -104,8 +104,10 @@ function App() {
 				}
 			`;
 			const response = await monday.api(query);
+			console.log("Boards response:", response);
 			const boardsData = response?.data?.boards || [];
 			setBoards(boardsData);
+			console.log("Boards set:", boardsData);
 		} catch (err) {
 			console.error("Error fetching boards:", err);
 		}
@@ -247,7 +249,7 @@ function App() {
 				: `https://www.google.com/maps/dir/?api=1&destination=${item.coords}`;
 
 			let marker = new mapboxgl.Marker({
-				color: item.statusColor ? item.statusColor : "orange"
+				color: item.statusStyle?.color || "#orange"
 			})
 			.setLngLat(coords)
 			.addTo(map);
@@ -394,11 +396,15 @@ function App() {
 			if (!boardId) return;
 
 			setCurrentBoardId(boardId);
+			// Fetch boards first, then fetch items
 			await fetchBoards();
 			setLoading(true);
 			await fetchItemsFromBoard('current', boardId);
 			setLoading(false);
 		});
+
+		// Also fetch boards on component mount in case context is already available
+		fetchBoards();
 	}, []);
 
 	const flyToItem = (id) => {
@@ -411,7 +417,7 @@ function App() {
 	// Prepare dropdown options for board selection
 	const boardOptions = [
 		{ value: 'current', label: 'Current Board' },
-		...boards.filter(board => board.id !== currentBoardId).map(board => ({
+		...boards.map(board => ({
 			value: board.id,
 			label: board.name
 		})),
@@ -443,29 +449,27 @@ function App() {
 						className="board-dropdown"
 					/>
 					
-					<Flex gap="small" marginTop="small">
-						<Tooltip content="Select at least one property using the checkboxes to plan a route.">
-							<Button
-								onClick={handleRoutePlanning}
-								disabled={selectedItems.size === 0}
-								size="small"
-								kind={selectedItems.size > 0 ? "primary" : "tertiary"}
-							>
-								🗺️ Route ({selectedItems.size})
-							</Button>
-						</Tooltip>
-						
-						<Tooltip content="Use the checkboxes to choose which properties to include in the PDF.">
-							<Button
-								onClick={handlePDFGeneration}
-								disabled={selectedItems.size === 0}
-								size="small"
-								kind={selectedItems.size > 0 ? "primary" : "tertiary"}
-							>
-								📄 PDF ({selectedItems.size})
-							</Button>
-						</Tooltip>
-					</Flex>
+									<Flex gap="small" marginTop="small">
+										<Button
+											onClick={handleRoutePlanning}
+											disabled={selectedItems.size === 0}
+											size="small"
+											kind={selectedItems.size > 0 ? "primary" : "tertiary"}
+											title="Select at least one property using the checkboxes to plan a route."
+										>
+											🗺️ Route ({selectedItems.size})
+										</Button>
+										
+										<Button
+											onClick={handlePDFGeneration}
+											disabled={selectedItems.size === 0}
+											size="small"
+											kind={selectedItems.size > 0 ? "primary" : "tertiary"}
+											title="Use the checkboxes to choose which properties to include in the PDF."
+										>
+											📄 PDF ({selectedItems.size})
+										</Button>
+									</Flex>
 				</Box>
 
 				<Box className="cards-container" padding="small">
@@ -493,16 +497,17 @@ function App() {
 												}}
 											/>
 										) : (
-											<Tooltip content="Add a 'Files' column and upload images to display a photo gallery here.">
-												<Box className="card-thumb no-photo">
-													<Avatar
-														src={photoPlaceholder}
-														alt="No photo"
-														size="large"
-														type="img"
-													/>
-												</Box>
-											</Tooltip>
+											<Box 
+												className="card-thumb no-photo"
+												title="Add a 'Files' column and upload images to display a photo gallery here."
+											>
+												<Avatar
+													src={photoPlaceholder}
+													alt="No photo"
+													size="large"
+													type="img"
+												/>
+											</Box>
 										)}
 									</Box>
 									
@@ -516,13 +521,13 @@ function App() {
 										</Text>
 										
 										<Flex align="center" gap="small" marginTop="xs">
-											<Tooltip content="Select for route planning or printing to PDF">
-												<Checkbox
-													checked={selectedItems.has(item.id)}
-													onChange={(checked) => handleItemSelection(item.id, checked)}
-													onClick={(e) => e.stopPropagation()}
-												/>
-											</Tooltip>
+											<input
+												type="checkbox"
+												checked={selectedItems.has(item.id)}
+												onChange={(e) => handleItemSelection(item.id, e.target.checked)}
+												onClick={(e) => e.stopPropagation()}
+												title="Select for route planning or printing to PDF"
+											/>
 										</Flex>
 										
 										<Text element="div" weight="bold" className="property-name">
