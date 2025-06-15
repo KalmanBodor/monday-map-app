@@ -119,16 +119,19 @@ function App() {
 			if (boardSelection === 'current' && currentBoard) {
 				boardIds = [currentBoard];
 			} else if (boardSelection === 'all') {
-				boardIds = boards.map(b => b.id);
+				boardIds = boards.map(b => parseInt(b.id)); // Ensure IDs are integers
 			} else if (boardSelection !== 'current') {
-				boardIds = [boardSelection];
+				boardIds = [parseInt(boardSelection)]; // Ensure ID is integer
 			}
 
 			if (boardIds.length === 0) return;
 
+			// Format board IDs properly for GraphQL query
+			const boardIdsString = boardIds.join(',');
+
 			const query = `
 				query {
-					boards(ids: [${boardIds.join(',')}]) {
+					boards(ids: [${boardIdsString}]) {
 						items_page {  
 							items {
 								id
@@ -149,7 +152,7 @@ function App() {
 			`;
 
 			const response = await monday.api(query);
-			console.log(response);
+			console.log('API Response:', response);
 			
 			let allItems = [];
 			response?.data?.boards?.forEach(board => {
@@ -273,7 +276,8 @@ function App() {
 	}
 
 	// Handle board selection change
-	const handleBoardChange = (value) => {
+	const handleBoardChange = (option) => {
+		const value = option.value;
 		setSelectedBoard(value);
 		setSelectedItems(new Set()); // Clear selections when changing boards
 		setLoading(true);
@@ -414,6 +418,9 @@ function App() {
 		{ value: 'all', label: 'All Boards' }
 	];
 
+	// Find selected option for dropdown
+	const selectedOption = boardOptions.find(option => option.value === selectedBoard);
+
 	return (
 		<div id="root">
 			<Box className={`sidebar ${!sidebarOpen ? 'closed' : ''}`}>
@@ -429,7 +436,7 @@ function App() {
 				<Box padding="medium" style={{ borderBottom: '1px solid var(--border-color)' }}>
 					<Label text="Select Board:" />
 					<Dropdown
-						value={selectedBoard}
+						value={selectedOption}
 						options={boardOptions}
 						onChange={handleBoardChange}
 						placeholder="Select a board"
