@@ -1,54 +1,10 @@
-/* Responsive design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 280px;
-  }
-  
-  .gallery-image-large {
-    max-height: 60vh;
-  }
-  
-  .nav-btn, .close-btn {
-    width: 36px !important;
-    height: 36px !important;
-  }
-  
-  .property-card {
-    margin-bottom: 8px !important;
-  }
-  
-  .card-addr {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar {
-    width: 260px;
-  }
-  
-  .sbr-toggle-btn {
-    width: 120px !important;
-    font-size: 12px !important;
-  }
-  
-  .cards-container {
-    padding: 6px !important;
-  }
-}/* Override @vibe/core Label styling */
-.sidebar .monday-style-label {
-  color: #d5d8df !important;
-  font-weight: 600 !important;
-  margin-bottom: 8px;
-}#root {
+#root {
   width: 100vw;
   height: 100vh;
   margin: 0;
   padding: 0;
   overflow: hidden;
   position: relative;
-  font-family: Figtree, Roboto, Noto Sans Hebrew, Noto Kufi Arabic, Noto Sans JP, sans-serif;
-  color: #d5d8df;
 }
 
 .map-container {
@@ -65,8 +21,6 @@
   left: 0;
   height: 100%;
   width: 320px;
-  background: #181b34;
-  box-shadow: 8px 0px 7px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   transform: translateX(0);
   transition: transform 0.2s ease-in-out;
@@ -75,13 +29,6 @@
 
 .sidebar.closed {
   transform: translateX(-100%);
-}
-
-/* Override @vibe/core Box padding for cards container */
-.cards-container {
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 8px !important;
 }
 
 /* Custom styling for @vibe/core buttons in sidebar */
@@ -99,63 +46,6 @@
   top: 10px;
   left: 10px;
   z-index: 20;
-}
-
-.list-toggle {
-  margin-bottom: 15px !important;
-}
-
-/* Board selection dropdown styling */
-.board-dropdown {
-  width: 100% !important;
-  margin-bottom: 10px;
-}
-
-/* Property card styling - updated for @vibe/core Card component */
-.property-card {
-  cursor: pointer;
-  margin-bottom: 12px !important;
-  background-color: transparent !important;
-  border: 1px solid #323338 !important;
-  border-radius: 6px !important;
-  transition: all 0.2s ease-in-out;
-}
-
-.property-card:hover {
-  background-color: #6768794d !important;
-  border-color: #676879 !important;
-}
-
-.property-card.selected {
-  background-color: #133774 !important;
-  border-color: #0073ea !important;
-}
-
-/* Card content styling */
-.card-content {
-  padding: 0 !important;
-}
-
-.card-addr {
-  font-size: 1.1rem;
-  font-weight: 600 !important;
-  line-height: 1.5;
-  margin-bottom: 8px;
-  color: #d5d8df !important;
-}
-
-.property-name {
-  color: #ffffff !important;
-  margin-bottom: 8px;
-}
-
-/* Item details styling */
-.item-details {
-  font-size: 0.875rem;
-}
-
-.item-details .monday-style-flex {
-  margin-bottom: 4px;
 }
 
 /* Thumbnail styling */
@@ -177,48 +67,7 @@
   justify-content: center;
   align-items: center;
   height: 80px;
-  background-color: #323338;
   border-radius: 4px;
-}
-
-/* Pin tooltip styling - updated for @vibe/core Card */
-.pin-tooltip {
-  position: absolute;
-  z-index: 1000;
-  transform: translate(-50%, -100%);
-  opacity: 0;
-  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-}
-
-.pin-tooltip.show {
-  opacity: 1;
-}
-
-.pin-tooltip-content {
-  background: #181b34 !important;
-  border: 1px solid #323338 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
-  max-width: 200px;
-  white-space: nowrap;
-}
-
-.pin-tooltip-content .monday-style-text {
-  color: #d5d8df !important;
-}
-
-/* Loading overlay */
-.loading-overlay {
-  position: absolute !important;
-  top: 20px;
-  left: 20px;
-  z-index: 100;
-  background: rgba(24, 27, 52, 0.9);
-  padding: 12px 16px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #d5d8df;
 }
 
 /* Modal styling */
@@ -235,225 +84,9 @@
   z-index: 9999;
 }
 
-.modal {
-  position: relative;
-  background: #181b34;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  position: relative;
-  width: 100%;
-  text-align: center;
-}
-
 .gallery-image-large {
   max-width: 100%;
   max-height: 80vh;
   object-fit: contain;
   border-radius: 4px;
 }
-
-/* Modal navigation buttons - updated for @vibe/core IconButton */
-.close-btn {
-  position: absolute !important;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.5) !important;
-  color: white !important;
-  border-radius: 50% !important;
-  z-index: 10;
-}
-
-.nav-btn {
-  position: absolute !important;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5) !important;
-  color: white !important;
-  border-radius: 50% !important;
-  z-index: 10;
-}
-
-.nav-btn.left { 
-  left: 10px; 
-}
-
-.nav-btn.right { 
-  right: 10px; 
-}
-
-/* Override @vibe/core Checkbox styling in sidebar context */
-.sidebar .monday-style-checkbox {
-  --checkbox-color-selected: #0073ea;
-}
-
-/* Override @vibe/core Text colors in sidebar */
-.sidebar .monday-style-text[data-color="secondary"] {
-  color: #9faab8 !important;
-}
-
-.sidebar .monday-style-text:not([data-color]) {
-  color: #d5d8df !important;
-}
-
-/* Override @vibe/core Button styling for sidebar context */
-.sidebar .monday-style-button[data-kind="tertiary"] {
-  background-color: transparent !important;
-  border-color: #676879 !important;
-  color: #d5d8df !important;
-}
-
-.sidebar .monday-style-button[data-kind="tertiary"]:hover {
-  background-color: #6768794d !important;
-  border-color: #9faab8 !important;
-}
-
-.sidebar .monday-style-button[data-kind="primary"] {
-  background-color: #0073ea !important;
-  border-color: #0073ea !important;
-}
-
-.sidebar .monday-style-button[data-kind="primary"]:disabled {
-  background-color: #323338 !important;
-  border-color: #323338 !important;
-  color: #676879 !important;
-}
-
-/* Override @vibe/core Dropdown styling */
-.sidebar .monday-style-dropdown {
-  background-color: #323338 !important;
-  border-color: #676879 !important;
-  color: #d5d8df !important;
-  z-index: 1000 !important; /* Ensure dropdown appears above other elements */
-}
-
-.sidebar .monday-style-dropdown:hover {
-  border-color: #9faab8 !important;
-}
-
-/* Dropdown menu specific z-index fix */
-.sidebar .monday-style-dropdown .monday-style-dropdown-menu,
-.sidebar .monday-style-dropdown .dropdown-menu,
-.sidebar [role="listbox"] {
-  z-index: 1001 !important;
-  background-color: #323338 !important;
-  border: 1px solid #676879 !important;
-}
-
-/* Override @vibe/core Card styling in sidebar */
-.sidebar .monday-style-card {
-  background-color: transparent !important;
-  border-color: #323338 !important;
-}
-
-/* Override @vibe/core Tooltip styling for dark theme */
-.sidebar .monday-style-tooltip,
-.monday-style-tooltip,
-[data-testid="tooltip"],
-.tooltip-content,
-.monday-style-tooltip-content {
-  z-index: 9999 !important;
-  background-color: #181b34 !important;
-  color: #d5d8df !important;
-  border: 1px solid #323338 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-  pointer-events: none !important;
-}
-
-/* Ensure tooltip wrapper doesn't interfere */
-.monday-style-tooltip-wrapper {
-  z-index: 9999 !important;
-}
-
-/* Override any tooltip hiding rules */
-.sidebar .monday-style-tooltip .tooltip-content,
-.sidebar [role="tooltip"],
-.sidebar .monday-tooltip {
-  color: #d5d8df !important;
-  background-color: #181b34 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
-}
-
-/* Fix for potential tooltip arrow */
-.monday-style-tooltip::after,
-.monday-style-tooltip::before,
-[data-testid="tooltip"]::after,
-[data-testid="tooltip"]::before {
-  border-color: #181b34 transparent transparent transparent !important;
-}
-
-/* Selection modal specific styling */
-.modal .monday-style-card {
-  background-color: #181b34 !important;
-  border-color: #323338 !important;
-  color: #d5d8df !important;
-}
-
-.modal .monday-style-text {
-  color: #d5d8df !important;
-}
-
-/* Your existing tooltip styles - comment out to avoid conflicts */
-/*
-.tooltip {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-6px);
-  background-color: #fff;
-  color: #323338;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  white-space: normal;
-  min-width: 100px;
-  max-width: 320px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  z-index: 100;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #fff;
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid #fff;
-}
-
-.no-photo-tooltip:hover .tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-12px);
-}
-
-.sbr-tool-btn {
-  position: relative;
-}
-
-.sbr-tool-btn:hover .tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-12px);
-}
-*/
