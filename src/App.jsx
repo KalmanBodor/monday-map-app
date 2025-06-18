@@ -455,7 +455,7 @@ function App() {
 		<Box
 			width="25%"
 			padding="small"
-			backgroundColor="surface"
+			
 			style={{ height: "100vh" }}
 			>
 			<Flex direction="row" gap={2}>
@@ -483,17 +483,122 @@ function App() {
 					</Button>
 				</Tooltip>
 			</Flex>
-				<Box style={{ width: "100%" }}>
-					<Dropdown
-						placeholder="Select a board"
-						options={boardOptions}
-						onChange={handleBoardChange}
-						multi
-						multiline
-						padding="medium"
-						style={{ width: "100%" }}
-					/>
-				</Box>
+			<Box style={{ width: "100%", position: "relative", overflow: "visible" }}>
+				<Dropdown
+					placeholder="Select board"
+					options={boardOptions}
+					onChange={handleBoardChange}
+					multi
+					multiline
+					style={{ width: "100%" }}
+				/>
+			</Box>
+			<Box className="cards-container" padding="small">
+				{items.map(item => {
+					return (
+						<Box 
+							key={item.id}
+							className={`property-card ${selectedItemId === item.id ? 'selected' : ''}`}
+							onClick={() => {
+								setSelectedItemId(item.id);
+								flyToItem(item.id);
+							}}
+						>
+							<Box>
+								<Box className="thumb-wrapper">
+									{item.thumb ? (
+										<img
+											src={item.thumb}
+											alt="Thumbnail"
+											className="card-thumb"
+											onClick={(e) => {
+												e.stopPropagation();
+												setGalleryImages(item.images);
+												setCurrentIndex(0);
+											}}
+										/>
+									) : (
+										<Tooltip 
+											content="Add a 'Files' column and upload images to display a photo gallery here."
+											position="top"
+										>
+											<div>
+												<Box className="card-thumb no-photo">
+													<Avatar
+														src={photoPlaceholder}
+														alt="No photo"
+														size="large"
+														type="img"
+													/>
+												</Box>
+											</div>
+										</Tooltip>
+									)}
+								</Box>
+								
+								<Box className="card-content">
+									<Text 
+										element="div" 
+										className="card-addr"
+										color="secondary"
+									>
+										{item.parsedAddress || item.address}
+									</Text>
+									
+									<Flex align="center" gap="small" marginTop="xs">
+										<Tooltip 
+											content="Select for route planning or printing to PDF"
+											position="top"
+										>
+											<div>
+												<Checkbox
+													checked={selectedItems.has(item.id)}
+													onChange={(checked) => handleItemSelection(item.id, checked)}
+													onClick={(e) => e.stopPropagation()}
+												/>
+											</div>
+										</Tooltip>
+									</Flex>
+									
+									<Text element="div" weight="bold" className="property-name">
+										{item.name}
+									</Text>
+									
+									<Box className="item-details" marginTop="small">
+										{item.nhoodCity && (
+											<Flex justify="space-between" marginBottom="xs">
+												<Text size="small" color="secondary">Nhood/City</Text>
+												<Text size="small">{item.nhoodCity}</Text>
+											</Flex>
+										)}
+										
+										{item.originalAddress && (
+											<Flex justify="space-between" marginBottom="xs">
+												<Text size="small" color="secondary">{item.addressColumnTitle}</Text>
+												<Text size="small">{item.originalAddress}</Text>
+											</Flex>
+										)}
+										
+										{item.column_values.map((col, idx) => (
+											!col.skipDisplayFile && !col.column.title.match(/address/i) && (
+												<Flex key={idx} justify="space-between" marginBottom="xs">
+													<Text size="small" color="secondary">{col.column.title}</Text>
+													<Text 
+														size="small" 
+														style={col.statusStyle}
+													>
+														{autoFormat(col.text)}
+													</Text>
+												</Flex>
+											)
+										))}
+									</Box>
+								</Box>
+							</Box>
+						</Box>
+					);
+				})}
+			</Box>
 		</Box>
 
 		{/* Map container */}
