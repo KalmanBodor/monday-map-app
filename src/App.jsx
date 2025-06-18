@@ -116,22 +116,12 @@ function App() {
 	};
 
 	// Fetch items from selected board(s)
-	const fetchItemsFromBoard = async (boardSelection, currentBoard = null) => {
+	const fetchItemsFromBoard = async (boardSelections, currentBoard = null) => {
 		try {
-			let boardIds = [];
-			
-			if (boardSelection === 'current' && currentBoard) {
-				boardIds = [currentBoard];
-			} else if (boardSelection === 'all') {
-				boardIds = boards.map(b => parseInt(b.id)); // Ensure IDs are integers
-			} else if (boardSelection !== 'current') {
-				boardIds = [parseInt(boardSelection)]; // Ensure ID is integer
-			}
-
-			if (boardIds.length === 0) return;
+			if (boardSelections.length === 0) return;
 
 			// Format board IDs properly for GraphQL query
-			const boardIdsString = boardIds.join(',');
+			const boardIdsString = boardSelections.join(',');
 
 			const query = `
 				query {
@@ -280,12 +270,12 @@ function App() {
 	}
 
 	// Handle board selection change
-	const handleBoardChange = (option) => {
-		const value = option.value;
-		setSelectedBoard(value);
+	const handleBoardChange = (options) => {
+		const values = options.map( option => { return option.value });
+		console.log()
 		setSelectedItems(new Set()); // Clear selections when changing boards
 		setLoading(true);
-		fetchItemsFromBoard(value, currentBoardId).finally(() => setLoading(false));
+		fetchItemsFromBoard(values, currentBoardId).finally(() => setLoading(false));
 	};
 
 	// Handle item selection
@@ -421,7 +411,7 @@ function App() {
 			// Fetch boards first, then fetch items
 			await fetchBoards();
 			setLoading(true);
-			await fetchItemsFromBoard('current', boardId);
+			await fetchItemsFromBoard(['current'], boardId);
 			setLoading(false);
 		});
 
@@ -439,7 +429,7 @@ function App() {
 	// Prepare dropdown options for board selection
 	const boardOptions = [
 		{ value: 'current', label: 'Current Board' },
-		...boards.map(board => ({
+		...boards?.map(board => ({
 			value: board.id,
 			label: board.name
 		})),
@@ -487,6 +477,7 @@ function App() {
 				<Dropdown
 					placeholder="Select board"
 					options={boardOptions}
+					defaultValue={[boardOptions[0]]}
 					onChange={handleBoardChange}
 					multi
 					multiline
