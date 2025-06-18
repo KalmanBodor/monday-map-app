@@ -4,9 +4,10 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import mondaySdk from "monday-sdk-js";
 import Modal from 'react-modal';
-import { 
-	Button, 
-	Dropdown, 
+import {
+	Button,
+	ButtonGroup,
+	Dropdown,
 	Checkbox,
 	Text,
 	Label,
@@ -17,7 +18,8 @@ import {
 	Flex,
 	Box
 } from '@vibe/core';
-import '@vibe/core/tokens'; // Import CSS tokens
+import { PDF,Country } from '@vibe/icons';
+import '@vibe/core/tokens';
 import './App.css';
 import photoPlaceholder from './assets/city_skyline.svg';
 
@@ -390,6 +392,26 @@ function App() {
 		printWindow.print();
 	};
 
+	function autoFormat(value) {
+		if (/\d{4}-\d{2}-\d{2}/.test(value)) {
+			const date = new Date(value);
+			if (isNaN(date)) return value;
+			return new Intl.DateTimeFormat('en-US').format(date);
+		} else if (/^\d+$/.test(value)) {
+			const formatter = new Intl.NumberFormat('en-US', {
+				minimumFractionDigits: 0,
+				maximumFractionDigits: 2
+			});
+			return formatter.format(value);
+		}
+
+		return value;
+	}
+
+	function isIOS() {
+		return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+	}
+
 	useEffect(() => {
 		monday.listen("context", async (res) => {
 			const boardId = res.data.boardId;
@@ -428,278 +450,58 @@ function App() {
 	const selectedOption = boardOptions.find(option => option.value === selectedBoard);
 
 	return (
-		<div id="root">
-	<Box className={`sidebar ${!sidebarOpen ? 'closed' : ''}`} padding='small'>
-		<Button 
-			kind="tertiary" 
-			size="small"
-			onClick={() => setSidebarOpen(false)}
-			className="sbr-toggle-btn list-toggle"
-		>
-			Hide Properties
-		</Button>
-		
-		<Dropdown
-			placeholder="Select a board"
-			options={boardOptions}
-			onChange={handleBoardChange}
-			multi
-			multiline
-			className="dropdown-stories-styles_with-chips"
-			padding="medium"
-		/>
-		
-			<Tooltip 
-				content="Select at least one property using the checkboxes to plan a route."
-				position="top"
-			>
-				<Button
-					onClick={handleRoutePlanning}
-					disabled={selectedItems.size === 0}
-					size="medium"
-					kind={selectedItems.size > 0 ? "primary" : "tertiary"}
-				>
-					Route ({selectedItems.size})
-				</Button>
-			</Tooltip>
-			
-			<Tooltip 
-				content="Use the checkboxes to choose which properties to include in the PDF."
-				position="top"
-			>
-				<Button
-					onClick={handlePDFGeneration}
-					disabled={selectedItems.size === 0}
-					size="small"
-					kind={selectedItems.size > 0 ? "primary" : "tertiary"}
-				>
-					PDF ({selectedItems.size})
-				</Button>
-			</Tooltip>
-
-		<Box className="cards-container" padding="small">
-			{items.map(item => {
-				return (
-					<Box 
-						key={item.id}
-						className={`property-card ${selectedItemId === item.id ? 'selected' : ''}`}
-						onClick={() => {
-							setSelectedItemId(item.id);
-							flyToItem(item.id);
-						}}
-					>
-						<Box>
-							<Box className="thumb-wrapper">
-								{item.thumb ? (
-									<img
-										src={item.thumb}
-										alt="Thumbnail"
-										className="card-thumb"
-										onClick={(e) => {
-											e.stopPropagation();
-											setGalleryImages(item.images);
-											setCurrentIndex(0);
-										}}
-									/>
-								) : (
-									<Tooltip 
-										content="Add a 'Files' column and upload images to display a photo gallery here."
-										position="top"
-									>
-										<div>
-											<Box className="card-thumb no-photo">
-												<Avatar
-													src={photoPlaceholder}
-													alt="No photo"
-													size="large"
-													type="img"
-												/>
-											</Box>
-										</div>
-									</Tooltip>
-								)}
-							</Box>
-							
-							<Box className="card-content">
-								<Text 
-									element="div" 
-									className="card-addr"
-									color="secondary"
-								>
-									{item.parsedAddress || item.address}
-								</Text>
-								
-								<Flex align="center" gap="small" marginTop="xs">
-									<Tooltip 
-										content="Select for route planning or printing to PDF"
-										position="top"
-									>
-										<div>
-											<Checkbox
-												checked={selectedItems.has(item.id)}
-												onChange={(checked) => handleItemSelection(item.id, checked)}
-												onClick={(e) => e.stopPropagation()}
-											/>
-										</div>
-									</Tooltip>
-								</Flex>
-								
-								<Text element="div" weight="bold" className="property-name">
-									{item.name}
-								</Text>
-								
-								<Box className="item-details" marginTop="small">
-									{item.nhoodCity && (
-										<Flex justify="space-between" marginBottom="xs">
-											<Text size="small" color="secondary">Nhood/City</Text>
-											<Text size="small">{item.nhoodCity}</Text>
-										</Flex>
-									)}
-									
-									{item.originalAddress && (
-										<Flex justify="space-between" marginBottom="xs">
-											<Text size="small" color="secondary">{item.addressColumnTitle}</Text>
-											<Text size="small">{item.originalAddress}</Text>
-										</Flex>
-									)}
-									
-									{item.column_values.map((col, idx) => (
-										!col.skipDisplayFile && !col.column.title.match(/address/i) && (
-											<Flex key={idx} justify="space-between" marginBottom="xs">
-												<Text size="small" color="secondary">{col.column.title}</Text>
-												<Text 
-													size="small" 
-													style={col.statusStyle}
-												>
-													{autoFormat(col.text)}
-												</Text>
-											</Flex>
-										)
-									))}
-								</Box>
-							</Box>
-						</Box>
-					</Box>
-				);
-			})}
-		</Box>
-	</Box>
-
-	{!sidebarOpen && (
-		<Button 
-			kind="primary" 
-			size="small"
-			onClick={() => setSidebarOpen(true)}
-			className="sidebar-toggle"
-		>
-			Show Properties
-		</Button>
-	)}
-	
-	<Box ref={mapContainer} className="map-container">
-		{loading && (
-			<Box className="loading-overlay">
-				<Loader />
-				<Text>Loading map data...</Text>
-			</Box>
-		)}
-	</Box>
-
-	{hoveredItem && mapRef.current && (
+      <Flex style={{ height: "100%", width: "100%" }}>
+		{/* Sidebar */}
 		<Box
-			className={`pin-tooltip ${hoveredItem ? 'show' : ''}`}
-			style={{
-				position: 'absolute',
-				left: `${mapRef.current.project(hoveredItem.coords).x}px`,
-				top: `${mapRef.current.project(hoveredItem.coords).y - 40}px`,
-				pointerEvents: 'none',
-			}}>
-			<Box className="pin-tooltip-content">
-				<Text size="small" color="secondary">{hoveredItem.address}</Text>
-				<Text size="small" weight="bold">{hoveredItem.name}</Text>
-			</Box>
-		</Box>
-	)}
+			width="25%"
+			padding="small"
+			backgroundColor="surface"
+			style={{ height: "100vh" }}
+			>
+			<Flex direction="row" gap={2}>
+				<Tooltip content="Select at least one property using the checkboxes to plan a route." position="top">
+					<Button
+						onClick={handleRoutePlanning}
+						kind="primary"
+						size="medium"
+						leftIcon={Country}
+						color="inverted"
+					>
+						Route ({selectedItems.size})
+					</Button>
+				</Tooltip>
 
-	<Modal
-		isOpen={galleryImages.length > 0}
-		onRequestClose={() => setGalleryImages([])}
-		className="modal"
-		overlayClassName="overlay"
-		contentLabel="Image Gallery"
-	>
-		{galleryImages.length > 0 && (
-			<Box className="modal-content">
-				<Button 
-					onClick={() => setGalleryImages([])}
-					className="close-btn"
-					kind="tertiary"
-					size="small"
-				>
-					×
-				</Button>
-				<Button 
-					onClick={() => setCurrentIndex(i => (i - 1 + galleryImages.length) % galleryImages.length)}
-					className="nav-btn left"
-					kind="tertiary"
-					size="small"
-				>
-					‹
-				</Button>
-				<img src={galleryImages[currentIndex]} alt="Gallery" className="gallery-image-large" />
-				<Button 
-					onClick={() => setCurrentIndex(i => (i + 1) % galleryImages.length)}
-					className="nav-btn right"
-					kind="tertiary"
-					size="small"
-				>
-					›
-				</Button>
-			</Box>
-		)}
-	</Modal>
-
-	{/* Selection Modal */}
-	<Modal
-		isOpen={showSelectionModal}
-		onRequestClose={() => setShowSelectionModal(false)}
-		className="modal"
-		overlayClassName="overlay"
-		contentLabel="Selection Required"
-	>
-		<Box className="selection-modal">
-			<Text element="h3">Selection Required</Text>
-			<Text>Please select at least one property using the checkboxes before proceeding.</Text>
-			<Flex justify="flex-end" marginTop="medium">
-				<Button onClick={() => setShowSelectionModal(false)}>
-					OK
-				</Button>
+				<Tooltip content="Use the checkboxes to choose which properties to include in the PDF." position="top">
+					<Button
+						onClick={handlePDFGeneration}
+						size="medium"
+						kind="primary"
+						leftIcon={PDF}
+						color="inverted"
+					>
+						PDF ({selectedItems.size})
+					</Button>
+				</Tooltip>
 			</Flex>
+				<Box style={{ width: "100%" }}>
+					<Dropdown
+						placeholder="Select a board"
+						options={boardOptions}
+						onChange={handleBoardChange}
+						multi
+						multiline
+						padding="medium"
+						style={{ width: "100%" }}
+					/>
+				</Box>
 		</Box>
-	</Modal>
-</div>
 
+		{/* Map container */}
+		<Box style={{ flexGrow: 1, height: "100vh", width: "75%" }}>
+			<div ref={mapContainer} style={{ height: "100%", width: "100%" }}></div>
+		</Box>
+    </Flex>
 	);
-
-	function autoFormat(value) {
-		if (/\d{4}-\d{2}-\d{2}/.test(value)) {
-			const date = new Date(value);
-			if (isNaN(date)) return value;
-			return new Intl.DateTimeFormat('en-US').format(date);
-		} else if (/^\d+$/.test(value)) {
-			const formatter = new Intl.NumberFormat('en-US', {
-				minimumFractionDigits: 0,
-				maximumFractionDigits: 2
-			});
-			return formatter.format(value);
-		}
-
-		return value;
-	}
-
-	function isIOS() {
-		return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-	}
 }
 
 export default App;
