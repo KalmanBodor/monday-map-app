@@ -118,10 +118,20 @@ function App() {
 	// Fetch items from selected board(s)
 	const fetchItemsFromBoard = async (boardSelections, currentBoard = null) => {
 		try {
-			if (boardSelections.length === 0) return;
+			let boardIds = [];
+			
+			if (boardSelection === 'current' && currentBoard) {
+				boardIds = [currentBoard];
+			} else if (boardSelection === 'all') {
+				boardIds = boards.map(b => parseInt(b.id)); // Ensure IDs are integers
+			} else if (boardSelection !== 'current') {
+				boardIds = [boardSelections]; // Ensure ID is integer
+			}
+
+			if (boardIds.length === 0) return;
 
 			// Format board IDs properly for GraphQL query
-			const boardIdsString = boardSelections.join(',');
+			const boardIdsString = boardIds.join(',');
 
 			const query = `
 				query {
