@@ -116,16 +116,20 @@ function App() {
 	};
 
 	// Fetch items from selected board(s)
-	const fetchItemsFromBoard = async (boardSelections, currentBoard = null) => {
+	const fetchItemsFromBoard = async (boardSelections) => {
 		try {
 			let boardIds = [];
 			
-			if (boardSelection === 'current' && currentBoard) {
-				boardIds = [currentBoard];
-			} else if (boardSelection === 'all') {
-				boardIds = boards.map(b => parseInt(b.id)); // Ensure IDs are integers
-			} else if (boardSelection !== 'current') {
-				boardIds = [boardSelections]; // Ensure ID is integer
+			if (boardSelections.some( brd => brd.value == 'all' )) {
+				boardIds.push(...boards.map(b => parseInt(b.id)));
+			}
+
+			if (boardSelections.some( brd => brd.value == 'current')) {
+				boardIds.push(...currentBoardId);
+			}
+				
+			if (boardSelections.length) {
+				boardIds.push(...boards.map(b => parseInt(b.id)));
 			}
 
 			if (boardIds.length === 0) return;
@@ -285,7 +289,7 @@ function App() {
 		console.log()
 		setSelectedItems(new Set()); // Clear selections when changing boards
 		setLoading(true);
-		fetchItemsFromBoard(values, currentBoardId).finally(() => setLoading(false));
+		fetchItemsFromBoard(values).finally(() => setLoading(false));
 	};
 
 	// Handle item selection
@@ -421,7 +425,7 @@ function App() {
 			// Fetch boards first, then fetch items
 			await fetchBoards();
 			setLoading(true);
-			await fetchItemsFromBoard(['current'], boardId);
+			await fetchItemsFromBoard(['current']);
 			setLoading(false);
 		});
 
