@@ -187,7 +187,7 @@ function App() {
 			}
 
 			if (boardSelections.some( brd => brd == 'current')) {
-				console.log('Current board selected' + currentBoardId);
+				console.log('Current board selected ' + currentBoardId);
 				boardIds.push(currentBoardId);
 			}
 				
@@ -1224,6 +1224,11 @@ function App() {
 			plotPins(mockItems);
 			return;
 		}
+
+		monday.get("context").then(res => {
+			console.log("Context received via get:", res);
+			setCurrentBoardId(res.data.boardId || null);
+		});
 
 		monday.listen("context", async (res) => {
 			const boardId = res.data.boardId;
