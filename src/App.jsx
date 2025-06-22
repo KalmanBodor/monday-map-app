@@ -294,8 +294,7 @@ function App() {
 		const values = options.map( option => { return option.value });
 		console.log()
 		setSelectedItems(new Set()); // Clear selections when changing boards
-		setLoading(true);
-		fetchItemsFromBoard(values).finally(() => setLoading(false));
+		fetchItemsFromBoard(values);
 	};
 
 	// Handle item selection
@@ -1233,9 +1232,7 @@ function App() {
 			setCurrentBoardId(boardId);
 			// Fetch boards first, then fetch items
 			await fetchBoards();
-			setLoading(true);
 			await fetchItemsFromBoard(['current']);
-			setLoading(false);
 		});
 
 		// Also fetch boards on component mount in case context is already available
