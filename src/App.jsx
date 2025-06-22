@@ -45,6 +45,17 @@ function App() {
 	const [selectedItems, setSelectedItems] = useState(new Set());
 	const [showSelectionModal, setShowSelectionModal] = useState(false);
 
+	const currentBoardIdRef = useRef(null);
+	useEffect(() => {
+		currentBoardIdRef.current = currentBoardId;
+	}, [currentBoardId]);
+
+	useEffect(() => { // auto-load items once both pieces arrive
+		if (currentBoardId && boards.length) {
+			fetchItemsFromBoard(['current']);
+		}
+	}, [currentBoardId, boards]);
+
 	useEffect(() => {
 		mapRef.current = new mapboxgl.Map({
 			container: mapContainer.current,
@@ -177,38 +188,26 @@ function App() {
 		return allItems;
 	};
 
-	const fetchItemsFromBoard = async (boardSelections) => {
-		const boardIds = new Set();
+	const fetchItemsFromBoard = async (selections) => {
+		const ids = new Set();
 
-		if (boardSelections.includes('all')) {
-			boards.forEach(b => boardIds.add(Number(b.id)));
+		if (selections.includes('current') && currentBoardIdRef.current) {
+			ids.add(currentBoardIdRef.current);
 		}
 
-		if (boardSelections.includes('current') && currentBoardIdRef.current) {
-			boardIds.add(currentBoardIdRef.current);
+		if (selections.includes('all')) {
+			boards.forEach(b => ids.add(+b.id));
 		}
 
-		// explicit board ids chosen in the dropdown
-		boardSelections.forEach(v => {
-			if (v !== 'all' && v !== 'current') boardIds.add(Number(v));
+		selections.forEach(v => { // explicit picks
+			if (v !== 'current' && v !== 'all') ids.add(+v);
 		});
 
-		if (boardIds.size === 0) return;
+		if (!ids.size) return; // nothing to fetch
 
-		const query = `
-			query {
-			boards(ids:[${[...boardIds].join(',')}]) {
-				items_page {
-				items {
-					id name
-					column_values { id text value column { title settings_str } }
-				}
-				}
-			}
-			}`;
-
-		const { data } = await monday.api(query);
-		const allItems = processItems({ data });
+		const query = `query{boards(ids:[${[...ids]}]){items_page{items{id name column_values{id text value column{title settings_str}}}}}}`;
+		const {data} = await monday.api(query);
+		const allItems = processItems({data});
 		setItems(allItems);
 		plotPins(allItems);
 	};
