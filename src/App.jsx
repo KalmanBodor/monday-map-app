@@ -61,7 +61,6 @@ function App() {
 
 	Modal.setAppElement('#root');
 
-	// Enhanced geocoding function with context data
 	async function geocode(address) {
 		const resp = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`);
 		const data = await resp.json();
@@ -179,57 +178,39 @@ function App() {
 	};
 
 	const fetchItemsFromBoard = async (boardSelections) => {
-		try {
-			let boardIds = [];
-			
-			if (boardSelections.some( brd => brd == 'all' )) {
-				boardIds.push(...boards.map(b => parseInt(b.id)));
-			}
+		const boardIds = new Set();
 
-			if (boardSelections.some( brd => brd == 'current')) {
-				console.log('Current board selected ' + currentBoardId);
-				boardIds.push(currentBoardId);
-			}
-				
-			if (boardSelections.length) {
-				boardIds.push(...boards.map(b => parseInt(b.id)));
-			}
-
-			if (boardIds.length === 0) return;
-
-			const boardIdsString = boardIds.join(',');
-
-			const query = `
-				query {
-					boards(ids: [${boardIdsString}]) {
-						items_page {  
-							items {
-								id
-								name
-								column_values {
-									id
-									value
-									text
-									column {
-										title
-										settings_str
-									}
-								}
-							}
-						}
-					}
-				}
-			`;
-
-			const response = await monday.api(query);
-			console.log('API Response:', response);
-			
-			let allItems = processItems(response);
-			setItems(allItems);
-			await plotPins(allItems);
-		} catch (err) {
-			console.error("Error fetching board data:", err);
+		if (boardSelections.includes('all')) {
+			boards.forEach(b => boardIds.add(Number(b.id)));
 		}
+
+		if (boardSelections.includes('current') && currentBoardIdRef.current) {
+			boardIds.add(currentBoardIdRef.current);
+		}
+
+		// explicit board ids chosen in the dropdown
+		boardSelections.forEach(v => {
+			if (v !== 'all' && v !== 'current') boardIds.add(Number(v));
+		});
+
+		if (boardIds.size === 0) return;
+
+		const query = `
+			query {
+			boards(ids:[${[...boardIds].join(',')}]) {
+				items_page {
+				items {
+					id name
+					column_values { id text value column { title settings_str } }
+				}
+				}
+			}
+			}`;
+
+		const { data } = await monday.api(query);
+		const allItems = processItems({ data });
+		setItems(allItems);
+		plotPins(allItems);
 	};
 
 	// Plot pins with enhanced geocoding
@@ -1226,18 +1207,14 @@ function App() {
 		}
 
 		monday.get("context").then(res => {
-			console.log("Context received via get:", res);
+			console.log("Context received via get:", res.data.boardId);
 			setCurrentBoardId(res.data.boardId || null);
 		});
 
-		monday.listen("context", async (res) => {
-			const boardId = res.data.boardId;
-			if (!boardId) return;
-            console.log('Current board: ' + boardId);
-			setCurrentBoardId(boardId);
-			// Fetch boards first, then fetch items
-			await fetchBoards();
-			await fetchItemsFromBoard(['current']);
+		monday.listen('context', (res) => {
+			const id = res.data.boardId;
+			if (!id) return;
+			setCurrentBoardId(id);
 		});
 
 		// Also fetch boards on component mount in case context is already available
