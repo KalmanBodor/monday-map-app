@@ -1,9 +1,13 @@
 import './polyfills'; // Import polyfills first
-import { useEffect, useRef, useState } from 'react';
+
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import mondaySdk from "monday-sdk-js";
+
 import Modal from 'react-modal';
+import { createPortal } from 'react-dom';
+import { useEffect, useRef, useState } from 'react';
+
+import mondaySdk from "monday-sdk-js";
 import {
 	Button,
 	Dropdown,
@@ -18,6 +22,7 @@ import {
 } from '@vibe/core';
 import { PDF, Country, Location, Remove, Check } from '@vibe/icons';
 import '@vibe/core/tokens';
+
 import './App.css';
 import photoPlaceholder from './assets/city_skyline.svg';
 
@@ -182,6 +187,7 @@ function App() {
 			}
 
 			if (boardSelections.some( brd => brd.value == 'current')) {
+				console.log('Current board selected' + currentBoardId);
 				boardIds.push(currentBoardId);
 			}
 				
@@ -258,11 +264,13 @@ function App() {
 			.setLngLat(coords)
 			.addTo(map);
 
+			marker.getElement().style.cursor = 'pointer';
+
 			marker.getElement().addEventListener('mouseenter', () => {
 				setHoveredItem({
 					id: item.id,
 					name: item.name,
-					address: item.parsedAddress,
+					address: item.address,
 					coords: marker.getLngLat()
 				});
 			});
@@ -1432,24 +1440,40 @@ function App() {
 		{/* Map container */}
 		<Box style={{ flexGrow: 1, height: "100vh", width: "75%" }}>
 			<div ref={mapContainer} style={{ height: "100%", width: "100%" }}></div>
+			{hoveredItem && mapRef.current && createPortal(
+				<div
+					className="pin-tooltip show"
+					style={{
+						position: 'absolute',
+						left: `${mapRef.current.project(hoveredItem.coords).x + mapContainer.current.getBoundingClientRect().left}px`,
+						top: `${mapRef.current.project(hoveredItem.coords).y + mapContainer.current.getBoundingClientRect().top - 40}px`,
+						pointerEvents: 'none',
+					}}>
+					<div className="tooltip-content">
+						<div className="tooltip-address">{hoveredItem.address}</div>
+						<div className="tooltip-name">{hoveredItem.name}</div>
+					</div>
+				</div>,
+				document.body
+			)}
 		</Box>
     </Flex>
 
 	<Modal
-			isOpen={galleryImages.length > 0}
-			onRequestClose={() => setGalleryImages([])}
-			className="modal"
-			overlayClassName="overlay"
-			contentLabel="Image Gallery">
-			{galleryImages.length > 0 && (
-				<div className="modal-content">
-				<button className="close-btn" onClick={() => setGalleryImages([])}>×</button>
-				<button className="nav-btn left" onClick={() => setCurrentIndex(i => (i - 1 + galleryImages.length) % galleryImages.length)}>‹</button>
-				<img src={galleryImages[currentIndex]} alt="Gallery" className="gallery-image-large" />
-				<button className="nav-btn right" onClick={() => setCurrentIndex(i => (i + 1) % galleryImages.length)}>›</button>
-				</div>
-			)}
-		</Modal>
+		isOpen={galleryImages.length > 0}
+		onRequestClose={() => setGalleryImages([])}
+		className="modal"
+		overlayClassName="overlay"
+		contentLabel="Image Gallery">
+		{galleryImages.length > 0 && (
+			<div className="modal-content">
+			<button className="close-btn" onClick={() => setGalleryImages([])}>×</button>
+			<button className="nav-btn left" onClick={() => setCurrentIndex(i => (i - 1 + galleryImages.length) % galleryImages.length)}>‹</button>
+			<img src={galleryImages[currentIndex]} alt="Gallery" className="gallery-image-large" />
+			<button className="nav-btn right" onClick={() => setCurrentIndex(i => (i + 1) % galleryImages.length)}>›</button>
+			</div>
+		)}
+	</Modal>
 	</>
 	);
 }
