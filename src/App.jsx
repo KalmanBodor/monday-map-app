@@ -16,7 +16,7 @@ import {
 	Flex,
 	Box
 } from '@vibe/core';
-import { PDF, Country, Location, Delete, Check } from '@vibe/icons';
+import { PDF, Country, Location, Remove, Check } from '@vibe/icons';
 import '@vibe/core/tokens';
 import './App.css';
 import photoPlaceholder from './assets/city_skyline.svg';
@@ -29,8 +29,6 @@ function App() {
 	const mapRef = useRef(null);
 	const markerCoords = useRef({});
 	const [items, setItems] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [selectedItemId, setSelectedItemId] = useState(null);
 	const [hoveredItem, setHoveredItem] = useState(null);
 	const [galleryImages, setGalleryImages] = useState([]);
@@ -38,7 +36,6 @@ function App() {
 	
 	// New state for board selection and route planning
 	const [boards, setBoards] = useState([]);
-	const [selectedBoard, setSelectedBoard] = useState('current');
 	const [currentBoardId, setCurrentBoardId] = useState(null);
 	const [selectedItems, setSelectedItems] = useState(new Set());
 	const [showSelectionModal, setShowSelectionModal] = useState(false);
@@ -185,7 +182,7 @@ function App() {
 			}
 
 			if (boardSelections.some( brd => brd.value == 'current')) {
-				boardIds.push(...currentBoardId);
+				boardIds.push(currentBoardId);
 			}
 				
 			if (boardSelections.length) {
@@ -1224,7 +1221,7 @@ function App() {
 		monday.listen("context", async (res) => {
 			const boardId = res.data.boardId;
 			if (!boardId) return;
-
+            console.log('Current board: ' + boardId);
 			setCurrentBoardId(boardId);
 			// Fetch boards first, then fetch items
 			await fetchBoards();
@@ -1414,7 +1411,7 @@ function App() {
 
 				<Box style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
 					<IconButton
-						icon={selectedItems.size ? Delete : Check} // swap with suitable icons
+						icon={selectedItems.size ? Remove : Check} // swap with suitable icons
 						onClick={() => {
 							if (selectedItems.size) {
 								setSelectedItems(new Set());
