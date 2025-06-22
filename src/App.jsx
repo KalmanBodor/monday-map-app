@@ -182,11 +182,11 @@ function App() {
 		try {
 			let boardIds = [];
 			
-			if (boardSelections.some( brd => brd.value == 'all' )) {
+			if (boardSelections.some( brd => brd == 'all' )) {
 				boardIds.push(...boards.map(b => parseInt(b.id)));
 			}
 
-			if (boardSelections.some( brd => brd.value == 'current')) {
+			if (boardSelections.some( brd => brd == 'current')) {
 				console.log('Current board selected' + currentBoardId);
 				boardIds.push(currentBoardId);
 			}
