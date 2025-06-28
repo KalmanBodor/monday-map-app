@@ -51,7 +51,7 @@ function App() {
 	}, [items]);
 	
 	const displayedItems = useMemo(() => {
-		if (!filters.nhoods.length) return items;
+		if (!filters?.nhoods?.length) return items;
 		return items.filter((i) => filters.nhoods.includes(i.nhoodCity));
 	}, [items, filters]);
 
@@ -72,6 +72,21 @@ function App() {
 		window.mapboxgl = mapboxgl;
 
 		return () => mapRef.current?.remove();
+	}, []);
+
+	useEffect(() => {
+		if (import.meta.env.DEV) return;
+
+		(async () => {
+			const query = `query { boards { id name } }`;
+			try {
+				const { data } = await monday.api(query);
+				setBoards(data?.boards || []);
+				console.log("Boards set:", data);
+			} catch (err) {
+				console.error("Error fetching boards:", err);
+			}
+		})();
 	}, []);
 
 	useEffect(() => { // auto-load items once both pieces arrive
@@ -126,27 +141,6 @@ function App() {
 					};
 			})
 		);
-	};
-
-	// Fetch all boards
-	const fetchBoards = async () => {
-		try {
-			const query = `
-				query {
-					boards {
-						id
-						name
-					}
-				}
-			`;
-			const response = await monday.api(query);
-			console.log("Boards response:", response);
-			const boardsData = response?.data?.boards || [];
-			setBoards(boardsData);
-			console.log("Boards set:", boardsData);
-		} catch (err) {
-			console.error("Error fetching boards:", err);
-		}
 	};
 
 	const processItems = (apiResponse) => {
@@ -1090,14 +1084,13 @@ function App() {
 
 	// Handle board selection change
 	const handleBoardChange = (options) => {
-		const values = options.map( option => { return option.value });
-		console.log()
+		const values = options?.map( option => { return option.value });
 		setSelectedItems(new Set()); // Clear selections when changing boards
 		fetchItemsFromBoard(values);
 	};
 
 	const handleNhoodChange = (opts) => {
-		setFilters((f) => ({ ...f, nhoods: opts.map((o) => o.value) }));
+		setFilters((f) => ({ ...f, nhoods: opts?.map((o) => o.value) }));
 	};
 
 	// Handle item selection
@@ -1241,8 +1234,10 @@ function App() {
 	<>
       <Flex style={{ height: "100%", width: "100%" }}>
 		{/* Sidebar */}
-		<Box width="25%" style={{ height: "100vh", display: 'flex', flexDirection: 'column', paddingLeft: "8px", paddingRight: "8px" }} backgroundColor="surface">
-			<Box style={{ width: "100%", position: "relative", overflow: "visible", flexGrow : 1, paddingTop: "8px", paddingBottom: "8px" }}>
+		<Box width="25%"
+			style={{ height: "100vh", display: 'flex', flexDirection: 'column', paddingLeft: "8px", paddingRight: "8px", width: "400px" }}
+			backgroundColor="surface">
+			<Box style={{ width: "100%", position: "relative", overflow: "visible", paddingTop: "8px", paddingBottom: "8px" }}>
 				<Dropdown
 					placeholder="Select board"
 					options={boardOptions}
@@ -1253,7 +1248,7 @@ function App() {
 					style={{ width: "100%" }}
 				/>
 			</Box>
-			<Box style={{ width: "100%", position: "relative", overflow: "visible", flexGrow : 1, paddingTop: "8px", paddingBottom: "8px" }}>
+			<Box style={{ width: "100%", position: "relative", overflow: "visible", paddingTop: "8px", paddingBottom: "8px" }}>
 				<Dropdown
 					placeholder="Filter by nhood"
 					multi

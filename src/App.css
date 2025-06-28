@@ -7,6 +7,14 @@
   position: relative;
 }
 
+.cards-container {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
 .property-card {
   margin-bottom: 8px;
   background-color: var(--primary-background-hover-color);
@@ -132,8 +140,6 @@
     font-size: 1.5rem;
   }
 }
-
-
 
 .pin-tooltip {
   background: #181b34;
