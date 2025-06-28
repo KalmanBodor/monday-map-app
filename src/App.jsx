@@ -98,10 +98,25 @@ function App() {
 	Modal.setAppElement('#root');
 
 	const geocode = async (address) => {
+		const cacheKey = `geo_${address.toLowerCase().trim()}`;
+		const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
+
+		if ( !import.meta.env.DEV ) {
+			try {
+				const cached = await monday.storage.instance.getItem(cacheKey);
+				const isExpired = Date.now() - cached.timestamp > MAX_AGE_MS;
+				if (isExpired) {
+					await monday.storage.instance.deleteItem(key);
+				} else {
+					return cached?.data;
+				}
+			} catch (err) {
+				console.warn('Storage get failed', err);
+			}
+		}
+
 		const resp = await fetch(
-		`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-			address
-		)}.json?access_token=${mapboxgl.accessToken}`
+			`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`
 		);
 		const data = await resp.json();
 		if (!data.features?.[0]) return null;
@@ -115,11 +130,22 @@ function App() {
 		else if (locality) nhoodCity = locality.text;
 		else if (neighborhood) nhoodCity = neighborhood.text;
 
-		return {
+		const result = {
 			center: feature.center,
 			fullAddress: feature.place_name,
-			nhoodCity,
+			matching_place_name: feature.place_name,
+			nhoodCity
 		};
+
+		if ( !import.meta.env.DEV ) {
+			try {
+				await monday.storage.instance.setItem(cacheKey, result);
+			} catch (err) {
+				console.warn('Storage set failed', err);
+			}
+		}
+
+		return result;
 	};
 
 	const geocodeItems = async (rawItems) => {
@@ -1167,11 +1193,24 @@ function App() {
 				<title>Selected Properties Report</title>
 				<style>
 					body { font-family: Arial, sans-serif; margin: 20px; }
-					.property { margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
+					.property { margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
 					.property-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-					.property-address { color: #666; margin-bottom: 10px; }
+					.property-address { color: #666; margin-bottom: 10px; font-weight: 600; }
 					.property-details { list-style: none; padding: 0; }
 					.property-details li { margin: 5px 0; }
+
+					@media print {
+						.property{
+							/* never let the card split across two sheets */
+							break-inside: avoid;
+							page-break-inside: avoid;   /* older WebKit name */
+
+							/* WebKit quirk-fix — treat the element like an inline block */
+							display: inline-block;      
+							width: 100%;                /* keeps the card full-width */
+							vertical-align: top;        /* restores normal flow */
+						}
+					}
 				</style>
 			</head>
 			<body>
@@ -1252,7 +1291,7 @@ function App() {
 			</Box>
 			<Box style={{ width: "100%", position: "relative", overflow: "visible", paddingTop: "8px", paddingBottom: "8px" }}>
 				<Dropdown
-					placeholder="Filter by nhood"
+					placeholder="Filter by nhood/city"
 					multi
 					clearable
 					options={nhoods.map(n => ({ value: n, label: n }))}
