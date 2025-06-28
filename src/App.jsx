@@ -11,7 +11,6 @@ import mondaySdk from "monday-sdk-js";
 import {
 	Button,
 	Dropdown,
-	Combobox,
 	Checkbox,
 	Text,
 	Icon,
@@ -44,11 +43,17 @@ function App() {
 	const [currentBoardId, setCurrentBoardId] = useState(null);
 	const [selectedItems, setSelectedItems] = useState(new Set());
 	const [showSelectionModal, setShowSelectionModal] = useState(false);
+	let statusColExists = false;
 
 	const nhoods = useMemo(() => {
 		const uniq = new Set(items.map((i) => i.nhoodCity).filter(Boolean));
 		return [...uniq].sort();
 	}, [items]);
+
+	// const statuses = useMemo(() => {
+	// 	const uniq = new Set(items.map((i) => i.status).filter(Boolean));
+	// 	return [...uniq].sort();
+	// }, [items]);
 	
 	const displayedItems = useMemo(() => {
 		if (!filters?.nhoods?.length) return items;
@@ -184,6 +189,7 @@ function App() {
 			let statusStyle = null;
 
 			if (status?.value && status.column?.settings_str) {
+				statusColExists = true;
 				try {
 					const meta = JSON.parse(status.column.settings_str);
 					const val = JSON.parse(status.value);
@@ -1123,6 +1129,10 @@ function App() {
 		setFilters((f) => ({ ...f, nhoods: opts?.map((o) => o.value) }));
 	};
 
+	const handleStatusChange = (opts) => {
+		setFilters((f) => ({ ...f, statuses: opts?.map((o) => o.value) }));
+	};
+
 	// Handle item selection
 	const handleItemSelection = (itemId, checked) => {
 		const newSelection = new Set(selectedItems);
@@ -1292,15 +1302,24 @@ function App() {
 				/>
 			</Box>
 			<Box style={{ width: "100%", position: "relative", overflow: "visible", paddingTop: "8px", paddingBottom: "8px" }}>
-				<Dropdown
-					placeholder="Filter by nhood/city"
-					multi
-					clearable
-					options={nhoods.map(n => ({ value: n, label: n }))}
-					onChange={handleNhoodChange}
-					style={{ width: "100%", marginTop: 8 }}
-				/>
+				<Flex direction="row" align="start" justify="space-between" gap="medium" style={{ width: '100%' }}>
+					
+					<Box style={{ flex: 1 }}>
+						<Dropdown
+							placeholder="Filter by nhood/city"
+							multi
+							clearable
+							options={nhoods.map(n => ({ value: n, label: n }))}
+							onChange={handleNhoodChange}
+							style={{ width: "100%", marginTop: 8 }}
+						/>
+					</Box>
+					
+					
+
+				</Flex>
 			</Box>
+
 			{/* Scrollable content (cards) */}
 			<Box className="cards-container" scrollable={true} style={{ flexGrow: 1 }}>
 				{displayedItems.map(item => {
