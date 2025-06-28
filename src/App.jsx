@@ -38,27 +38,40 @@ function App() {
 	const [hoveredItem, setHoveredItem] = useState(null);
 	const [galleryImages, setGalleryImages] = useState([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [filters, setFilters] = useState({ boards: ["current"], nhoods: [] });
+	const [filters, setFilters] = useState({ boards: ["current"], nhoods: [], statuses: [] });
 	const [boards, setBoards] = useState([]);
 	const [currentBoardId, setCurrentBoardId] = useState(null);
 	const [selectedItems, setSelectedItems] = useState(new Set());
 	const [showSelectionModal, setShowSelectionModal] = useState(false);
-	let statusColExists = false;
 
 	const nhoods = useMemo(() => {
 		const uniq = new Set(items.map((i) => i.nhoodCity).filter(Boolean));
 		return [...uniq].sort();
 	}, [items]);
 
-	// const statuses = useMemo(() => {
-	// 	const uniq = new Set(items.map((i) => i.status).filter(Boolean));
-	// 	return [...uniq].sort();
-	// }, [items]);
+	const statuses = useMemo(() => {
+		const uniq = new Set(items.map((i) => i.status).filter(Boolean));
+		return [...uniq].sort();
+	}, [items]);
+
+	const statusColExists = useMemo(() => {
+		return items.some(item =>
+			item.status
+		);
+	}, [items]);
 	
 	const displayedItems = useMemo(() => {
-		if (!filters?.nhoods?.length) return items;
-		return items.filter((i) => filters.nhoods.includes(i.nhoodCity));
+		if (!filters?.nhoods?.length && !filters?.statuses?.length) {
+			return items;
+		}
+
+		return items.filter(i => {
+			const matchNhood = !filters.nhoods?.length || filters.nhoods.includes(i.nhoodCity);
+			const matchStatus = !filters.statuses?.length || filters.statuses.includes(i.status);
+			return matchNhood && matchStatus;
+		});
 	}, [items, filters]);
+
 
 	const currentBoardIdRef = useRef(null);
 	useEffect(() => {
@@ -189,7 +202,7 @@ function App() {
 			let statusStyle = null;
 
 			if (status?.value && status.column?.settings_str) {
-				statusColExists = true;
+				item.status = status.text;
 				try {
 					const meta = JSON.parse(status.column.settings_str);
 					const val = JSON.parse(status.value);
@@ -1303,8 +1316,7 @@ function App() {
 			</Box>
 			<Box style={{ width: "100%", position: "relative", overflow: "visible", paddingTop: "8px", paddingBottom: "8px" }}>
 				<Flex direction="row" align="start" justify="space-between" gap="medium" style={{ width: '100%' }}>
-					
-					<Box style={{ flex: 1 }}>
+					<Box style={{ flex: 1, overflow: "visible", maxWidth: "50%" }}>
 						<Dropdown
 							placeholder="Filter by nhood/city"
 							multi
@@ -1314,9 +1326,29 @@ function App() {
 							style={{ width: "100%", marginTop: 8 }}
 						/>
 					</Box>
-					
-					
-
+					<Box style={{ flex: 1, overflow: "visible", maxWidth: "50%" }}>
+						{statusColExists
+							? (
+								<Dropdown
+									placeholder="Filter by status"
+									multi
+									clearable
+									options={statuses.map(n => ({ value: n, label: n }))}
+									onChange={handleStatusChange}
+									style={{ width: "100%", marginTop: 8 }}
+								/>
+							)
+							: (
+								<Tooltip content="Add a 'Status' column to your board to be able to filter by status" position="top">
+									<Dropdown
+										placeholder="Filter by status"
+										disabled
+										options
+									/>
+								</Tooltip>
+							)
+						}
+					</Box>
 				</Flex>
 			</Box>
 
@@ -1345,7 +1377,7 @@ function App() {
 										}}/>
 								) : (
 									<Tooltip 
-										content="Add a 'Files' column and upload images to display a photo gallery here."
+										content="Add a 'Files' column to your board and upload images there to display a photo gallery here."
 										position="top">
 										<div>
 											<Box className="card-thumb no-photo">
