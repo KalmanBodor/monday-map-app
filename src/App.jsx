@@ -39,17 +39,21 @@ function App() {
 	const [hoveredItem, setHoveredItem] = useState(null);
 	const [galleryImages, setGalleryImages] = useState([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [nhoods, setNhoods] = useState([]);
-	const [selectedNhoods, setSelectedNhoods] = useState([]);
+	const [filters, setFilters] = useState({ boards: ["current"], nhoods: [] });
 	const [boards, setBoards] = useState([]);
 	const [currentBoardId, setCurrentBoardId] = useState(null);
 	const [selectedItems, setSelectedItems] = useState(new Set());
 	const [showSelectionModal, setShowSelectionModal] = useState(false);
 
+	const nhoods = useMemo(() => {
+		const uniq = new Set(items.map((i) => i.nhoodCity).filter(Boolean));
+		return [...uniq].sort();
+	}, [items]);
+	
 	const displayedItems = useMemo(() => {
-		if (!selectedNhoods.length) return items;
-		return items.filter(i => selectedNhoods.includes(i.nhoodCity));
-	}, [items, selectedNhoods]);
+		if (!filters.nhoods.length) return items;
+		return items.filter((i) => filters.nhoods.includes(i.nhoodCity));
+	}, [items, filters]);
 
 	const currentBoardIdRef = useRef(null);
 	useEffect(() => {
@@ -1092,6 +1096,10 @@ function App() {
 		fetchItemsFromBoard(values);
 	};
 
+	const handleNhoodChange = (opts) => {
+		setFilters((f) => ({ ...f, nhoods: opts.map((o) => o.value) }));
+	};
+
 	// Handle item selection
 	const handleItemSelection = (itemId, checked) => {
 		const newSelection = new Set(selectedItems);
@@ -1251,7 +1259,7 @@ function App() {
 					multi
 					clearable
 					options={nhoods.map(n => ({ value: n, label: n }))}
-					onChange={opts => setSelectedNhoods(opts.map(o => o.value))}
+					onChange={handleNhoodChange}
 					style={{ width: "100%", marginTop: 8 }}
 				/>
 			</Box>
