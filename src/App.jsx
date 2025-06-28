@@ -72,6 +72,31 @@ function App() {
 		});
 	}, [items, filters]);
 
+	const stats = useMemo(() => {
+		const totalItems = items.length;
+
+		let totalSqft = 0;
+		const countByNhood = {};
+
+		for (const item of items) {
+			// Safe sum of sqft
+			const sqft = parseFloat(item.sqft);
+			if (!isNaN(sqft)) {
+				totalSqft += sqft;
+			}
+
+			// Count by neighborhood
+			const nhood = item.nhoodCity || "Unknown";
+			countByNhood[nhood] = (countByNhood[nhood] || 0) + 1;
+		}
+
+		return {
+			totalItems,
+			totalSqft,
+			countByNhood,
+		};
+	}, [items]);
+
 
 	const currentBoardIdRef = useRef(null);
 	useEffect(() => {
@@ -1350,6 +1375,17 @@ function App() {
 						}
 					</Box>
 				</Flex>
+			</Box>
+
+			<Box>
+				<Text>Total {stats.totalItems}</Text>
+				<div><strong>Total Sqft:</strong> {stats.totalSqft.toLocaleString()}</div>
+				<div><strong>By Neighborhood:</strong></div>
+				<ul>
+					{Object.entries(stats.countByNhood).map(([nhood, count]) => (
+						<li key={nhood}>{nhood}: {count}</li>
+					))}
+				</ul>
 			</Box>
 
 			{/* Scrollable content (cards) */}
