@@ -104,11 +104,13 @@ function App() {
 		if ( !import.meta.env.DEV ) {
 			try {
 				const cached = await monday.storage.instance.getItem(cacheKey);
-				const isExpired = Date.now() - cached.timestamp > MAX_AGE_MS;
-				if (isExpired) {
-					await monday.storage.instance.deleteItem(key);
-				} else {
-					return cached?.data;
+				if (cached && cached.success && cached.value) {
+					const isExpired = Date.now() - cached.timestamp > MAX_AGE_MS;
+					if (isExpired) {
+						await monday.storage.instance.deleteItem(key);
+					} else {
+						return cached?.data;
+					}
 				}
 			} catch (err) {
 				console.warn('Storage get failed', err);
