@@ -1012,6 +1012,8 @@ function App() {
 		} else {
 			const ids = new Set();
 
+			if (!selections) return;
+
 			if (selections.includes('current') && currentBoardIdRef.current) {
 				ids.add(currentBoardIdRef.current);
 			}
@@ -1020,7 +1022,7 @@ function App() {
 				boards.forEach(b => ids.add(+b.id));
 			}
 
-			selections.forEach(v => { // explicit picks
+			selections.forEach(v => {
 				if (v !== 'current' && v !== 'all') ids.add(+v);
 			});
 
