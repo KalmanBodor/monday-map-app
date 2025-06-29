@@ -11,6 +11,7 @@ import mondaySdk from "monday-sdk-js";
 import {
 	Button,
 	Dropdown,
+	ExpandCollapse,
 	Checkbox,
 	Text,
 	Icon,
@@ -18,9 +19,10 @@ import {
 	Tooltip,
 	Avatar,
 	Flex,
-	Box
+	Box,
+	List
 } from '@vibe/core';
-import { PDF, Country, Location, Remove, Check } from '@vibe/icons';
+import { PDF, Country, Location, Remove, Check, AddSmall, DropdownChevronDown } from '@vibe/icons';
 import '@vibe/core/tokens';
 
 import './App.css';
@@ -75,25 +77,16 @@ function App() {
 	const stats = useMemo(() => {
 		const totalItems = items.length;
 
-		let totalSqft = 0;
 		const countByNhood = {};
 
 		for (const item of items) {
-			// Safe sum of sqft
-			const sqft = parseFloat(item.sqft);
-			if (!isNaN(sqft)) {
-				totalSqft += sqft;
-			}
-
-			// Count by neighborhood
 			const nhood = item.nhoodCity || "Unknown";
 			countByNhood[nhood] = (countByNhood[nhood] || 0) + 1;
 		}
 
 		return {
 			totalItems,
-			totalSqft,
-			countByNhood,
+			countByNhood
 		};
 	}, [items]);
 
@@ -1347,7 +1340,13 @@ function App() {
 							multi
 							clearable
 							options={nhoods.map(n => ({ value: n, label: n }))}
-							onChange={handleNhoodChange}
+							value={filters.nhoods.map(n => ({ value: n, label: n }))} // ← controlled
+							onChange={(selectedOptions) => {
+								setFilters(prev => ({
+									...prev,
+									nhoods: (selectedOptions || []).map(opt => opt.value)
+								}));
+							}}
 							style={{ width: "100%", marginTop: 8 }}
 						/>
 					</Box>
@@ -1359,7 +1358,13 @@ function App() {
 									multi
 									clearable
 									options={statuses.map(n => ({ value: n, label: n }))}
-									onChange={handleStatusChange}
+									value={filters.statuses.map(n => ({ value: n, label: n }))}
+									onChange={(selectedOptions) => {
+										setFilters(prev => ({
+											...prev,
+											statuses: (selectedOptions || []).map(opt => opt.value)
+										}));
+									}}
 									style={{ width: "100%", marginTop: 8 }}
 								/>
 							)
@@ -1377,15 +1382,14 @@ function App() {
 				</Flex>
 			</Box>
 
-			<Box>
-				<Text>Total {stats.totalItems}</Text>
-				<div><strong>Total Sqft:</strong> {stats.totalSqft.toLocaleString()}</div>
-				<div><strong>By Neighborhood:</strong></div>
-				<ul>
-					{Object.entries(stats.countByNhood).map(([nhood, count]) => (
-						<li key={nhood}>{nhood}: {count}</li>
-					))}
-				</ul>
+			<Box style={{ width: "100%", position: "relative", overflow: "visible", paddingTop: "8px", paddingBottom: "8px", color:'var(--color-ui_grey)'}}>
+				<ExpandCollapse title={<span style={{ color: 'var(--color-ui_grey)' }}>{`Total ${stats.totalItems} properties. More...`}</span>}>
+					<ul style={{ listStyle: "none", margin: 0, color: 'var(--color-ui_grey)', paddingInlineStart: "16px" }}>
+						{Object.entries(stats.countByNhood).map(([nhood, count]) => (
+							<li style={{ paddingBottom: "8px" }} key={nhood}>{nhood}: {count}</li>
+						))}
+					</ul>
+				</ExpandCollapse>
 			</Box>
 
 			{/* Scrollable content (cards) */}
@@ -1462,14 +1466,66 @@ function App() {
 								
 								<Box className="item-details" marginTop="small">
 									{item.nhoodCity && (
-										<Flex justify="space-between"  style={{ marginBottom : "6px"}}>
+										<Flex justify="space-between" style={{ marginBottom : "6px"}}>
 											<Text size="small" weight="bold" style={{ color: 'var(--color-ui_grey)' }}>Nhood/City</Text>
-											<Text size="small" color="onInverted">{item.nhoodCity}</Text>
+											<Flex gap="small" align="center">
+												<Text size="small" color="onInverted">{item.nhoodCity}</Text>
+												<IconButton
+													icon={AddSmall}
+													size="xs"
+													kind="secondary"
+													color="on-inverted-background"
+													tooltipContent={`Search in ${item.nhoodCity}`}
+													onClick={(e) => {
+														e.stopPropagation();
+														setFilters(prev => {
+															const current = prev.nhoods || [];
+															if (current.includes(item.nhoodCity)) {
+																return prev;
+															}
+															return {
+																...prev,
+																nhoods: [...current, item.nhoodCity]
+															};
+														});
+													}}
+													style={{ height: "16px" }}
+												/>
+											</Flex>
+										</Flex>
+									)}
+
+									{item.status && (
+										<Flex justify="space-between" style={{ marginBottom : "6px"}}>
+											<Text size="small" weight="bold" style={{ color: 'var(--color-ui_grey)' }}>Status</Text>
+											<Flex gap="small" align="center">
+												<Text size="small" color="onInverted" style={item.statusStyle}>{item.status}</Text>
+												<IconButton
+													icon={AddSmall}
+													size="xs"
+													kind="secondary"
+													color="on-inverted-background"
+													tooltipContent={`Search by status ${item.status}`}
+													onClick={(e) => {
+														e.stopPropagation();
+														setFilters(prev => {
+															const current = prev.statuses || [];
+															if (current.includes(item.status)) {
+																return prev;
+															}
+															return {
+																...prev,
+																statuses: [...current, item.status]
+															};
+														});
+													}}
+												/>
+											</Flex>
 										</Flex>
 									)}
 									
 									{item.originalAddress && (
-										<Flex justify="space-between"  style={{ marginBottom : "6px"}}>
+										<Flex justify="space-between" style={{ marginBottom : "6px"}}>
 											<Text size="small" weight="bold" style={{ color: 'var(--color-ui_grey)' }}>
 												{item.addressColumnTitle}
 											</Text>
@@ -1480,12 +1536,15 @@ function App() {
 									)}
 									
 									{item.column_values.map((col, idx) => (
-										!col.skipDisplayFile && !col.column.title.match(/address/i) && (
+										!col.skipDisplayFile
+										&& !col.column.title.match(/address/i)
+										&& !col.column.title.match(/status/i)
+										&& (
 											<Flex key={idx} justify="space-between" style={{ marginBottom : "6px"}}>
-												<Text size="small" weight="bold" style={{ color: 'var(--color-ui_grey)' }}>{col.column.title}</Text>
-												<Text 
-													size="small" color="onInverted"
-													style={col.statusStyle}>
+												<Text size="small" weight="bold" style={{ color: 'var(--color-ui_grey)' }}>
+													{col.column.title}
+												</Text>
+												<Text size="small" color="onInverted">
 													{autoFormat(col.text)}
 												</Text>
 											</Flex>
