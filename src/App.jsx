@@ -20,7 +20,8 @@ import {
 	Avatar,
 	Flex,
 	Box,
-	List
+	Heading,
+	DialogContentContainer
 } from '@vibe/core';
 import { PDF, Country, Location, Remove, Check, AddSmall, DropdownChevronDown } from '@vibe/icons';
 import '@vibe/core/tokens';
@@ -32,8 +33,10 @@ const monday = mondaySdk();
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 function App() {
+	const [subscriptionStatus, setSubscriptionStatus] = useState("pending"); // "pending" | "active" | "inactive"
+
 	const mapContainer = useRef(null);
-	const mapRef = useRef(null);
+	const [mapInstance, setMapInstance] = useState(null);
 	const markerCoords = useRef({});
 	const [items, setItems] = useState([]);
 	const [selectedItemId, setSelectedItemId] = useState(null);
@@ -45,6 +48,31 @@ function App() {
 	const [currentBoardId, setCurrentBoardId] = useState(null);
 	const [selectedItems, setSelectedItems] = useState(new Set());
 	const [showSelectionModal, setShowSelectionModal] = useState(false);
+
+	useEffect(() => {
+		async function checkSubscription() {
+			if (import.meta.env.DEV) {
+				setSubscriptionStatus("active");
+				return;
+			}
+
+			try {
+				const res = await monday.get("subscription");
+				const data = res.data;
+
+				const now = new Date();
+				const trialEnd = new Date(data.trial_end_date);
+				const isValid = data.is_paid || (data.is_trial && trialEnd > now);
+
+				setSubscriptionStatus(isValid ? "active" : "inactive");
+			} catch (err) {
+				console.error("Subscription check failed:", err);
+				setSubscriptionStatus("inactive");
+			}
+		}
+
+		checkSubscription();
+	}, []);
 
 	const nhoods = useMemo(() => {
 		const uniq = new Set(items.map((i) => i.nhoodCity).filter(Boolean));
@@ -97,18 +125,21 @@ function App() {
 	}, [currentBoardId]);
 
 	useEffect(() => {
-		mapRef.current = new mapboxgl.Map({
+		if (!mapContainer.current || mapInstance) return;
+
+		console.log("GO MAP" + mapContainer.current);
+
+		const map = new mapboxgl.Map({
 			container: mapContainer.current,
-			style: 'mapbox://styles/mapbox/streets-v11',
-			center: [-73.935242, 40.730610],
+			style: "mapbox://styles/mapbox/streets-v11",
+			center: [-73.935242, 40.73061],
 			zoom: 10,
 		});
 
-		window.map = mapRef.current;
-		window.mapboxgl = mapboxgl;
+		setMapInstance(map);
 
-		return () => mapRef.current?.remove();
-	}, []);
+		return () => map.remove();
+	}, [mapContainer]);
 
 	useEffect(() => {
 		if (import.meta.env.DEV) return;
@@ -1108,8 +1139,7 @@ function App() {
 
 	// Plot pins with enhanced geocoding
 	const plotPins = (itemsToPlot) => {
-		const map = mapRef.current;
-		if (!map) return;
+		if (!mapInstance) return;
 
 		// clear old markers
 		const old = document.querySelectorAll(".mapboxgl-marker");
@@ -1122,7 +1152,7 @@ function App() {
 			markerCoords.current[item.id] = [lng, lat];
 			const marker = new mapboxgl.Marker({ color: item.statusStyle?.color || "#orange" })
 				.setLngLat([lng, lat])
-				.addTo(map);
+				.addTo(mapInstance);
 
 			const el = marker.getElement();
 			el.style.cursor = "pointer";
@@ -1303,8 +1333,8 @@ function App() {
 
 	const flyToItem = (id) => {
 		const coords = markerCoords.current[id];
-		if (coords && mapRef.current) {
-			mapRef.current.flyTo({ center: coords, zoom: 17 });
+		if (coords && mapContainer.current) {
+			mapInstance.flyTo({ center: coords, zoom: 17 });
 		}
 	};
 
@@ -1314,9 +1344,39 @@ function App() {
 		{ value: "all", label: "All Boards" },
 	];
 
+	if (subscriptionStatus === "inactive") {
+		return (
+			<Flex className="subscr">
+				<div className="blur-wrapper">
+					<DialogContentContainer className="subscr-dialog">
+						<Box>
+							<Heading type="h4" marginBottom={2}>
+								Subscription Required
+							</Heading>
+							<Text type="text1" maxLines="3" style={{ marginTop : "20px" }}>
+								To use this app, please activate your subscription through your monday.com account.
+							</Text>
+							<Box className="subscribe-button-wrapper">
+								<Button
+									kind="primary"
+									color="primary"
+									onClick={() =>
+										window.location.href =
+										'https://auth.monday.com/oauth2/authorize_app_subscription?client_id=10407837'
+									}>
+									Subscribe Now
+								</Button>
+							</Box>
+						</Box>
+					</DialogContentContainer>
+				</div>
+			</Flex>
+		);
+	}
+
 	return (
 	<>
-      <Flex style={{ height: "100%", width: "100%" }}>
+	<Flex style={{ height: "100%", width: "100%" }}>
 		{/* Sidebar */}
 		<Box width="25%"
 			style={{ height: "100vh", display: 'flex', flexDirection: 'column', paddingLeft: "8px", paddingRight: "8px", width: "400px" }}
@@ -1609,22 +1669,26 @@ function App() {
 			</Flex>
 		</Box>
 
-		{/* Map container */}
-		<Box style={{ flexGrow: 1, height: "100vh", width: "75%" }}>
-			<div ref={mapContainer} style={{ height: "100%", width: "100%" }}></div>
-			{hoveredItem && mapRef.current && createPortal(
+		<Box style={{ flexGrow: 1, height: "100vh", width: "75%", position: "relative" }}>
+			<div
+				ref={mapContainer}
+				style={{ height: "100%", width: "100%" }}
+			/>
+
+			{hoveredItem && mapInstance && mapContainer.current && createPortal(
 				<div
-					className="pin-tooltip show"
-					style={{
-						position: 'absolute',
-						left: `${mapRef.current.project(hoveredItem.coords).x + mapContainer.current.getBoundingClientRect().left}px`,
-						top: `${mapRef.current.project(hoveredItem.coords).y + mapContainer.current.getBoundingClientRect().top - 40}px`,
-						pointerEvents: 'none',
-					}}>
-					<div className="tooltip-content">
-						<div className="tooltip-address">{hoveredItem.address}</div>
-						<div className="tooltip-name">{hoveredItem.name}</div>
-					</div>
+				className="pin-tooltip show"
+				style={{
+					position: 'absolute',
+					left: `${mapInstance.project(hoveredItem.coords).x + mapContainer.current.getBoundingClientRect().left}px`,
+					top: `${mapInstance.project(hoveredItem.coords).y + mapContainer.current.getBoundingClientRect().top - 40}px`,
+					pointerEvents: 'none',
+				}}
+				>
+				<div className="tooltip-content">
+					<div className="tooltip-address">{hoveredItem.address}</div>
+					<div className="tooltip-name">{hoveredItem.name}</div>
+				</div>
 				</div>,
 				document.body
 			)}
