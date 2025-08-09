@@ -1101,7 +1101,6 @@ function App() {
 	const fetchItemsFromBoard = async (selections) => {
 		let items = {};
 		if (import.meta.env.DEV) {
-			console.log("Using mock data...");
 			items = mockData();
 		} else {
 			const ids = new Set();
