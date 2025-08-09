@@ -127,8 +127,6 @@ function App() {
 	useEffect(() => {
 		if (!mapContainer.current || mapInstance) return;
 
-		console.log("GO MAP" + mapContainer.current);
-
 		const map = new mapboxgl.Map({
 			container: mapContainer.current,
 			style: "mapbox://styles/mapbox/streets-v11",
